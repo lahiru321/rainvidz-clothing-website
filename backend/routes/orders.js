@@ -33,8 +33,45 @@ router.post('/create', optionalAuth, async (req, res) => {
         let orderItems = [];
         let totalAmount = 0;
 
-        // If user is authenticated, get items from cart
-        if (req.userId) {
+        // Prioritize items from request body (for local cart)
+        // If no items in request, try to get from database cart (for authenticated users)
+        if (items && items.length > 0) {
+            // Items provided in request (local cart checkout)
+            for (const item of items) {
+                const product = await Product.findById(item.productId);
+                if (!product) {
+                    return res.status(404).json({
+                        success: false,
+                        error: `Product not found: ${item.productId}`
+                    });
+                }
+
+                const variant = product.variants.find(v =>
+                    v.sku === item.variantId || v._id.toString() === item.variantId
+                );
+
+                if (!variant || variant.quantity < item.quantity) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `Insufficient stock for ${product.name}`
+                    });
+                }
+
+                const price = product.salePrice || product.price;
+                orderItems.push({
+                    productId: product._id,
+                    productName: product.name,
+                    productCode: product.productCode,
+                    color: variant.color,
+                    size: variant.size,
+                    quantity: item.quantity,
+                    priceAtPurchase: price
+                });
+
+                totalAmount += price * item.quantity;
+            }
+        } else if (req.userId) {
+            // No items in request, try database cart (authenticated users only)
             const cart = await Cart.findOne({ supabaseUserId: req.userId })
                 .populate('items.productId');
 
@@ -74,48 +111,11 @@ router.post('/create', optionalAuth, async (req, res) => {
                 totalAmount += price * item.quantity;
             }
         } else {
-            // Guest checkout - items provided in request
-            if (!items || items.length === 0) {
-                return res.status(400).json({
-                    success: false,
-                    error: 'No items provided'
-                });
-            }
-
-            // Validate and build order items
-            for (const item of items) {
-                const product = await Product.findById(item.productId);
-                if (!product) {
-                    return res.status(404).json({
-                        success: false,
-                        error: `Product not found: ${item.productId}`
-                    });
-                }
-
-                const variant = product.variants.find(v =>
-                    v.sku === item.variantId || v._id.toString() === item.variantId
-                );
-
-                if (!variant || variant.quantity < item.quantity) {
-                    return res.status(400).json({
-                        success: false,
-                        error: `Insufficient stock for ${product.name}`
-                    });
-                }
-
-                const price = product.salePrice || product.price;
-                orderItems.push({
-                    productId: product._id,
-                    productName: product.name,
-                    productCode: product.productCode,
-                    color: variant.color,
-                    size: variant.size,
-                    quantity: item.quantity,
-                    priceAtPurchase: price
-                });
-
-                totalAmount += price * item.quantity;
-            }
+            // No items provided and user not authenticated
+            return res.status(400).json({
+                success: false,
+                error: 'No items provided'
+            });
         }
 
         // Create order
@@ -182,9 +182,9 @@ router.get('/user', verifyAuth, async (req, res) => {
 /**
  * @route   GET /api/orders/:id
  * @desc    Get specific order details
- * @access  Private (user can only view their own orders)
+ * @access  Public (guests can view their orders, authenticated users can only view their own)
  */
-router.get('/:id', verifyAuth, async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
 
@@ -195,8 +195,8 @@ router.get('/:id', verifyAuth, async (req, res) => {
             });
         }
 
-        // Check if order belongs to user
-        if (order.supabaseUserId !== req.userId) {
+        // If user is authenticated, check if order belongs to them
+        if (req.userId && order.supabaseUserId !== req.userId) {
             return res.status(403).json({
                 success: false,
                 error: 'Access denied'

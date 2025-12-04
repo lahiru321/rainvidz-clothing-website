@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { ShoppingBag } from "lucide-react"
 
 interface Product {
@@ -10,12 +11,13 @@ interface Product {
   category: string
   image: string
   hoverImage: string
+  slug?: string // Optional slug for navigation
 }
 
 export default function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
   const [isHovered, setIsHovered] = useState(false)
 
-  return (
+  const cardContent = (
     <div className="group cursor-pointer">
       {/* Product Image */}
       <div
@@ -41,6 +43,7 @@ export default function ProductCard({ product, onAddToCart }: { product: Product
           <button
             onClick={(e) => {
               e.preventDefault()
+              e.stopPropagation()
               onAddToCart()
             }}
             className="bg-primary text-primary-foreground px-6 py-3 font-semibold flex items-center gap-2 hover:bg-accent hover:text-accent-foreground transition-all duration-300 transform hover:scale-105 shadow-lg"
@@ -49,8 +52,6 @@ export default function ProductCard({ product, onAddToCart }: { product: Product
             Add to Bag
           </button>
         </div>
-
-
       </div>
 
       {/* Product Info */}
@@ -63,4 +64,16 @@ export default function ProductCard({ product, onAddToCart }: { product: Product
       </div>
     </div>
   )
+
+  // If product has a slug, wrap in Link
+  if (product.slug) {
+    return (
+      <Link href={`/products/${product.slug}`}>
+        {cardContent}
+      </Link>
+    )
+  }
+
+  // Otherwise, return without link
+  return cardContent
 }

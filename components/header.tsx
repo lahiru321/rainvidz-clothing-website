@@ -1,12 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, ShoppingBag, Search } from "lucide-react"
-import { collections } from "@/lib/data"
+import { Menu, X, ShoppingBag, Search, User, LogOut, Package } from "lucide-react"
+import { useCartStore } from "@/lib/store/cartStore"
+import { useAuth } from "@/lib/contexts/AuthContext"
 
-export default function Header({ cartCount }: { cartCount: number }) {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const cartItemCount = useCartStore((state) => state.getItemCount())
+  const { user, signOut } = useAuth()
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const handleSignOut = async () => {
+    await signOut()
+    setIsUserMenuOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
@@ -25,24 +39,12 @@ export default function Header({ cartCount }: { cartCount: number }) {
             >
               New Arrivals
             </Link>
-            <div className="relative group">
-              <button className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300 flex items-center gap-1">
-                Collections
-              </button>
-              <div className="absolute top-full left-0 w-56 bg-background border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <div className="py-2">
-                  {collections.map((collection) => (
-                    <Link
-                      key={collection.slug}
-                      href={`/collections/${collection.slug}`}
-                      className="block px-4 py-3 text-sm text-foreground hover:bg-secondary hover:text-accent transition-colors"
-                    >
-                      {collection.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <Link
+              href="/collections"
+              className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
+            >
+              Collections
+            </Link>
             <Link
               href="/shop"
               className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
@@ -62,14 +64,59 @@ export default function Header({ cartCount }: { cartCount: number }) {
             <button className="p-2 hover:bg-secondary transition-colors duration-300">
               <Search className="w-5 h-5" />
             </button>
-            <button className="relative p-2 hover:bg-secondary transition-colors duration-300">
+
+            <Link href="/cart" className="relative p-2 hover:bg-secondary transition-colors duration-300">
               <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                  {cartCount}
+              {isMounted && cartItemCount > 0 && (
+                <span className="absolute top-1 right-1 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemCount}
                 </span>
               )}
-            </button>
+            </Link>
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 p-2 hover:bg-secondary transition-colors duration-300 rounded-md"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="hidden md:block text-sm font-medium">
+                    {user.user_metadata?.full_name || 'Account'}
+                  </span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md shadow-lg py-2">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    >
+                      <Package className="w-4 h-4" />
+                      My Orders
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+              >
+                <User className="w-5 h-5" />
+                Login
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2">
@@ -88,7 +135,7 @@ export default function Header({ cartCount }: { cartCount: number }) {
               New Arrivals
             </Link>
             <Link
-              href="#"
+              href="/collections"
               className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
             >
               Collections
@@ -105,6 +152,31 @@ export default function Header({ cartCount }: { cartCount: number }) {
             >
               About
             </Link>
+
+            {/* Mobile User Links */}
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  My Orders
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </nav>
         )}
       </div>
