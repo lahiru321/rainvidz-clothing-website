@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Menu, X, ShoppingBag, Search, User, LogOut, Package, ChevronDown } from "lucide-react"
 import { useCartStore } from "@/lib/store/cartStore"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { getCollections, type Collection } from "@/lib/api/collections"
 
 export default function Header() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const [isMounted, setIsMounted] = useState(false)
   const [collections, setCollections] = useState<Collection[]>([])
   const cartItemCount = useCartStore((state) => state.getItemCount())
@@ -33,6 +37,15 @@ export default function Header() {
   const handleSignOut = async () => {
     await signOut()
     setIsUserMenuOpen(false)
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery("")
+    }
   }
 
   return (
@@ -105,7 +118,10 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-secondary transition-colors duration-300">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 hover:bg-secondary transition-colors duration-300"
+            >
               <Search className="w-5 h-5" />
             </button>
 
@@ -236,6 +252,49 @@ export default function Header() {
           </nav>
         )}
       </div>
+
+      {/* Search Modal */}
+      {isSearchOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-20"
+          onClick={() => setIsSearchOpen(false)}
+        >
+          <div
+            className="bg-background w-full max-w-2xl mx-4 rounded-lg shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSearch} className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Search className="w-5 h-5 text-foreground/60" />
+                <h2 className="text-xl font-semibold">Search Products</h2>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products..."
+                  autoFocus
+                  className="flex-1 px-4 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-accent bg-background"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="px-4 py-3 border border-border rounded-md hover:bg-secondary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

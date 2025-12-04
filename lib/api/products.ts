@@ -73,11 +73,44 @@ export interface ProductFilters {
     limit?: number;
 }
 
+export interface SearchFilters {
+    q?: string; // search query
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: 'relevance' | 'price' | 'newest' | 'name';
+    order?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+}
+
+export interface SearchResponse {
+    success: boolean;
+    data: {
+        products: Product[];
+        query: string;
+    };
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+    };
+}
+
 /**
  * Get all products with optional filters
  */
 export const getProducts = async (filters?: ProductFilters): Promise<ProductsResponse> => {
     const response = await apiClient.get('/products', { params: filters });
+    return response.data;
+};
+
+/**
+ * Search products by text query with filters
+ */
+export const searchProducts = async (filters?: SearchFilters): Promise<SearchResponse> => {
+    const response = await apiClient.get('/products/search', { params: filters });
     return response.data;
 };
 

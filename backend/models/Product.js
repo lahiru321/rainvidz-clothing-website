@@ -118,6 +118,9 @@ productSchema.index({ isFeatured: 1 });
 productSchema.index({ soldCount: -1 });
 productSchema.index({ 'variants.sku': 1 }, { sparse: true });
 
+// Text search index for name and description
+productSchema.index({ name: 'text', description: 'text' });
+
 // Virtual for checking if product is on sale
 productSchema.virtual('isOnSale').get(function () {
     return this.salePrice && this.salePrice < this.price;
