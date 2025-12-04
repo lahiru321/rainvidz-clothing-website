@@ -11,61 +11,33 @@ import {
     type CarouselApi
 } from "@/components/ui/carousel"
 import ProductCard from "./product-card"
-
-const newArrivals = [
-    {
-        id: 1,
-        name: "Boho Maxi Dress",
-        price: "$129",
-        category: "Dresses",
-        image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=800&q=80",
-    },
-    {
-        id: 2,
-        name: "Linen Wide Leg Pants",
-        price: "$89",
-        category: "Bottoms",
-        image: "https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1594631252976-72920f599419?w=800&q=80",
-    },
-    {
-        id: 3,
-        name: "Crochet Summer Top",
-        price: "$65",
-        category: "Tops",
-        image: "https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1617019114610-3367369f76f4?w=800&q=80",
-    },
-    {
-        id: 4,
-        name: "Embroidered Peasant Blouse",
-        price: "$95",
-        category: "Tops",
-        image: "https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1564584217180-2271feaeb3c5?w=800&q=80",
-    },
-    {
-        id: 5,
-        name: "Floral Wrap Skirt",
-        price: "$79",
-        category: "Bottoms",
-        image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=800&q=80",
-    },
-    {
-        id: 6,
-        name: "Woven Straw Hat",
-        price: "$45",
-        category: "Accessories",
-        image: "https://images.unsplash.com/photo-1521320226546-87b106956014?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1521320226546-87b106956014?w=800&q=80",
-    }
-]
+import { getProducts, type Product } from "@/lib/api/products"
 
 export default function NewArrivals({ onAddToCart }: { onAddToCart: () => void }) {
     const [api, setApi] = useState<CarouselApi>()
+    const [products, setProducts] = useState<Product[]>([])
+    const [loading, setLoading] = useState(true)
 
+    // Fetch new arrivals from API
+    useEffect(() => {
+        const fetchNewArrivals = async () => {
+            try {
+                const response = await getProducts({
+                    isNewArrival: true,
+                    limit: 8
+                })
+                setProducts(response.data)
+            } catch (error) {
+                console.error('Error fetching new arrivals:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchNewArrivals()
+    }, [])
+
+    // Auto-scroll carousel
     useEffect(() => {
         if (!api) return
 
@@ -75,6 +47,18 @@ export default function NewArrivals({ onAddToCart }: { onAddToCart: () => void }
 
         return () => clearInterval(intervalId)
     }, [api])
+
+    if (loading) {
+        return (
+            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-border/40">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-center h-64">
+                        <p className="text-foreground/60">Loading new arrivals...</p>
+                    </div>
+                </div>
+            </section>
+        )
+    }
 
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-border/40">
@@ -95,11 +79,23 @@ export default function NewArrivals({ onAddToCart }: { onAddToCart: () => void }
                     className="w-full"
                 >
                     <CarouselContent className="-ml-4">
-                        {newArrivals.map((product) => (
-                            <CarouselItem key={product.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                <ProductCard product={product} onAddToCart={onAddToCart} />
-                            </CarouselItem>
-                        ))}
+                        {products.map((product, index) => {
+                            const cardProduct = {
+                                id: index + 1,
+                                name: product.name,
+                                price: `Rs ${product.effectivePrice.toLocaleString()}`,
+                                category: product.category.name,
+                                image: product.images.find(img => img.isPrimary)?.url || product.images[0]?.url || '',
+                                hoverImage: product.images.find(img => img.isHover)?.url || product.images[1]?.url || '',
+                                slug: product.slug
+                            }
+
+                            return (
+                                <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                    <ProductCard product={cardProduct} onAddToCart={onAddToCart} />
+                                </CarouselItem>
+                            )
+                        })}
                     </CarouselContent>
                     <div className="flex justify-end gap-2 mt-8">
                         <CarouselPrevious className="static translate-y-0" />
