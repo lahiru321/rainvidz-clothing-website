@@ -2,20 +2,33 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, ShoppingBag, Search, User, LogOut, Package } from "lucide-react"
+import { Menu, X, ShoppingBag, Search, User, LogOut, Package, ChevronDown } from "lucide-react"
 import { useCartStore } from "@/lib/store/cartStore"
 import { useAuth } from "@/lib/contexts/AuthContext"
+import { getCollections, type Collection } from "@/lib/api/collections"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isCollectionsOpen, setIsCollectionsOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [collections, setCollections] = useState<Collection[]>([])
   const cartItemCount = useCartStore((state) => state.getItemCount())
   const { user, signOut } = useAuth()
 
   useEffect(() => {
     setIsMounted(true)
+    fetchCollections()
   }, [])
+
+  const fetchCollections = async () => {
+    try {
+      const response = await getCollections()
+      setCollections(response.data)
+    } catch (error) {
+      console.error('Error fetching collections:', error)
+    }
+  }
 
   const handleSignOut = async () => {
     await signOut()
@@ -39,12 +52,43 @@ export default function Header() {
             >
               New Arrivals
             </Link>
-            <Link
-              href="/collections"
-              className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
-            >
-              Collections
-            </Link>
+
+            {/* Collections Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCollectionsOpen(!isCollectionsOpen)}
+                onMouseEnter={() => setIsCollectionsOpen(true)}
+                className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
+              >
+                Collections
+                <ChevronDown className="w-4 h-4" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isCollectionsOpen && (
+                <div
+                  onMouseLeave={() => setIsCollectionsOpen(false)}
+                  className="absolute left-0 mt-2 w-56 bg-background border border-border rounded-md shadow-lg py-2"
+                >
+                  {collections.map((collection) => (
+                    <Link
+                      key={collection._id}
+                      href={`/collections/${collection.slug}`}
+                      onClick={() => setIsCollectionsOpen(false)}
+                      className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    >
+                      {collection.name}
+                    </Link>
+                  ))}
+                  {collections.length === 0 && (
+                    <div className="px-4 py-2 text-sm text-foreground/60">
+                      No collections available
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <Link
               href="/shop"
               className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
@@ -134,12 +178,24 @@ export default function Header() {
             >
               New Arrivals
             </Link>
-            <Link
-              href="/collections"
-              className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
-            >
-              Collections
-            </Link>
+
+            {/* Collections in Mobile */}
+            <div className="py-2">
+              <div className="text-sm font-medium text-foreground mb-2">Collections</div>
+              <div className="pl-4 space-y-2">
+                {collections.map((collection) => (
+                  <Link
+                    key={collection._id}
+                    href={`/collections/${collection.slug}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block py-1 text-sm text-foreground/80 hover:text-accent transition-colors"
+                  >
+                    {collection.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <Link
               href="/shop"
               className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"

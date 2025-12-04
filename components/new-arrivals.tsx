@@ -26,7 +26,15 @@ export default function NewArrivals({ onAddToCart }: { onAddToCart: () => void }
                     isNewArrival: true,
                     limit: 8
                 })
-                setProducts(response.data)
+                console.log('=== NEW ARRIVALS API RESPONSE ===')
+                console.log('Full response:', response)
+                console.log('response.data:', response.data)
+                console.log('response.data.products:', response.data.products)
+                if (response.data.products && response.data.products[0]) {
+                    console.log('First product:', response.data.products[0])
+                    console.log('First product primaryImage:', response.data.products[0].primaryImage)
+                }
+                setProducts(response.data.products || [])
             } catch (error) {
                 console.error('Error fetching new arrivals:', error)
             } finally {
@@ -79,23 +87,17 @@ export default function NewArrivals({ onAddToCart }: { onAddToCart: () => void }
                     className="w-full"
                 >
                     <CarouselContent className="-ml-4">
-                        {products.map((product, index) => {
-                            const cardProduct = {
-                                id: index + 1,
-                                name: product.name,
-                                price: `Rs ${product.effectivePrice.toLocaleString()}`,
-                                category: product.category.name,
-                                image: product.images.find(img => img.isPrimary)?.url || product.images[0]?.url || '',
-                                hoverImage: product.images.find(img => img.isHover)?.url || product.images[1]?.url || '',
-                                slug: product.slug
-                            }
-
-                            return (
-                                <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                    <ProductCard product={cardProduct} onAddToCart={onAddToCart} />
-                                </CarouselItem>
-                            )
-                        })}
+                        {products.map((product) => (
+                            <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                <ProductCard
+                                    name={product.name}
+                                    price={product.price}
+                                    salePrice={product.salePrice}
+                                    image={product.primaryImage}
+                                    slug={product.slug}
+                                />
+                            </CarouselItem>
+                        ))}
                     </CarouselContent>
                     <div className="flex justify-end gap-2 mt-8">
                         <CarouselPrevious className="static translate-y-0" />

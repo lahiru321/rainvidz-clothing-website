@@ -28,6 +28,8 @@ export interface Product {
         isHover: boolean;
         displayOrder: number;
     }>;
+    primaryImage: string;
+    hoverImage: string;
     variants: Array<{
         color: string;
         size: string;
@@ -40,7 +42,9 @@ export interface Product {
 
 export interface ProductsResponse {
     success: boolean;
-    data: Product[];
+    data: {
+        products: Product[];
+    };
     pagination: {
         page: number;
         limit: number;
@@ -64,7 +68,7 @@ export interface ProductFilters {
     color?: string;
     size?: string;
     sortBy?: 'price' | 'soldCount' | 'name' | 'createdAt';
-    order?: 'asc' | 'desc';
+    sortOrder?: 'asc' | 'desc';
     page?: number;
     limit?: number;
 }

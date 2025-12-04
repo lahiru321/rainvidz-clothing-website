@@ -15,7 +15,7 @@ export default function ShopSection({ onAddToCart }: { onAddToCart: () => void }
                     limit: 8,
                     sortBy: 'soldCount'
                 })
-                setProducts(response.data)
+                setProducts(response.data.products)
             } catch (error) {
                 console.error('Error fetching shop products:', error)
             } finally {
@@ -41,31 +41,24 @@ export default function ShopSection({ onAddToCart }: { onAddToCart: () => void }
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-t border-border/40">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-4">Shop the Look</h2>
-                    <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-                        Complete your wardrobe with these handpicked essentials
-                    </p>
+                <div className="flex items-center justify-between mb-12">
+                    <div>
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">Best Sellers</h2>
+                        <p className="text-foreground/60">Our most popular pieces</p>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {products.map((product, index) => {
-                        const cardProduct = {
-                            id: index + 1,
-                            name: product.name,
-                            price: `Rs ${product.effectivePrice.toLocaleString()}`,
-                            category: product.category.name,
-                            image: product.images.find(img => img.isPrimary)?.url || product.images[0]?.url || '',
-                            hoverImage: product.images.find(img => img.isHover)?.url || product.images[1]?.url || '',
-                            slug: product.slug
-                        }
-
-                        return (
-                            <div key={product._id}>
-                                <ProductCard product={cardProduct} onAddToCart={onAddToCart} />
-                            </div>
-                        )
-                    })}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product._id}
+                            name={product.name}
+                            price={product.price}
+                            salePrice={product.salePrice}
+                            image={product.primaryImage}
+                            slug={product.slug}
+                        />
+                    ))}
                 </div>
             </div>
         </section>
