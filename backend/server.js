@@ -42,8 +42,11 @@ app.use('/api/collections', require('./routes/collections'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
-// app.use('/api/checkout', require('./routes/checkout')); // Will add later
-// app.use('/api/admin', require('./routes/admin')); // Will add later
+
+// Admin Routes
+app.use('/api/admin/products', require('./routes/admin/products'));
+app.use('/api/admin/orders', require('./routes/admin/orders'));
+app.use('/api/admin/dashboard', require('./routes/admin/dashboard'));
 
 
 // 404 handler
