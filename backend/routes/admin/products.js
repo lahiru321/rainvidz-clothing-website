@@ -57,6 +57,40 @@ router.post('/', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/admin/products/:id
+ * @desc    Get a single product by ID
+ * @access  Admin
+ */
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const product = await Product.findById(id)
+            .populate('category', 'name slug')
+            .populate('collection', 'name slug');
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                error: 'Product not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: product
+        });
+    } catch (error) {
+        console.error('Get product error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error',
+            message: error.message
+        });
+    }
+});
+
+/**
  * @route   PUT /api/admin/products/:id
  * @desc    Update a product
  * @access  Admin

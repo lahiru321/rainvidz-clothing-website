@@ -47,6 +47,9 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin/products', require('./routes/admin/products'));
 app.use('/api/admin/orders', require('./routes/admin/orders'));
 app.use('/api/admin/dashboard', require('./routes/admin/dashboard'));
+app.use('/api/admin/categories', require('./routes/admin/categories'));
+app.use('/api/admin/collections', require('./routes/admin/collections'));
+
 
 
 // 404 handler

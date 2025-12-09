@@ -59,8 +59,7 @@ router.get('/', async (req, res) => {
         const orders = await Order.find(filter)
             .sort(sortOptions)
             .skip(skip)
-            .limit(Number(limit))
-            .populate('userId', 'email');
+            .limit(Number(limit));
 
         // Get total count
         const total = await Order.countDocuments(filter);
@@ -92,8 +91,7 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id)
-            .populate('userId', 'email');
+        const order = await Order.findById(req.params.id);
 
         if (!order) {
             return res.status(404).json({

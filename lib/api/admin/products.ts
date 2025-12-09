@@ -47,6 +47,14 @@ export const createProduct = async (data: ProductCreateData) => {
 };
 
 /**
+ * Get a product by ID
+ */
+export const getProductById = async (id: string) => {
+    const response = await apiClient.get(`/admin/products/${id}`);
+    return response.data;
+};
+
+/**
  * Update an existing product
  */
 export const updateProduct = async (id: string, data: Partial<ProductCreateData>) => {
