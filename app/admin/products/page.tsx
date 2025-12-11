@@ -135,8 +135,8 @@ export default function AdminProductsPage() {
                                             </td>
                                             <td className="py-3 px-4">
                                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${product.stockStatus === 'IN_STOCK' ? 'bg-green-100 text-green-800' :
-                                                        product.stockStatus === 'LOW_STOCK' ? 'bg-orange-100 text-orange-800' :
-                                                            'bg-red-100 text-red-800'
+                                                    product.stockStatus === 'LOW_STOCK' ? 'bg-orange-100 text-orange-800' :
+                                                        'bg-red-100 text-red-800'
                                                     }`}>
                                                     {product.stockStatus.replace('_', ' ')}
                                                 </span>

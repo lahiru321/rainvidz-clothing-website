@@ -117,12 +117,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 lg:translate-x-0
                 ${isSidebarOpen ? 'w-64' : 'w-20'}
-                bg-secondary border-r border-border
+                bg-black border-r border-gray-800
             `}>
                 <div className="flex flex-col h-full">
                     {/* Logo */}
-                    <div className="p-6 border-b border-border">
-                        <h1 className={`font-serif font-bold text-primary ${isSidebarOpen ? 'text-2xl' : 'text-xl text-center'}`}>
+                    <div className="p-6 border-b border-gray-800">
+                        <h1 className={`font-serif font-bold text-white ${isSidebarOpen ? 'text-2xl' : 'text-xl text-center'}`}>
                             {isSidebarOpen ? 'Admin Panel' : 'AP'}
                         </h1>
                     </div>
@@ -133,23 +133,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-background transition-colors"
+                                className="flex items-center gap-3 px-4 py-3 rounded-md text-gray-200 hover:bg-gray-900 hover:text-white transition-colors"
                             >
-                                <item.icon className="w-5 h-5 text-primary" />
+                                <item.icon className="w-5 h-5" />
                                 {isSidebarOpen && <span className="font-medium">{item.name}</span>}
                             </Link>
                         ))}
                     </nav>
 
                     {/* User Info & Logout */}
-                    <div className="p-4 border-t border-border">
+                    <div className="p-4 border-t border-gray-800">
                         <div className="flex items-center gap-3 px-4 py-3 mb-2">
                             {isSidebarOpen && (
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">
+                                    <p className="text-sm font-medium truncate text-white">
                                         {user?.user_metadata?.full_name || 'Admin'}
                                     </p>
-                                    <p className="text-xs text-foreground/60 truncate">
+                                    <p className="text-xs text-gray-400 truncate">
                                         {user?.email}
                                     </p>
                                 </div>
@@ -157,7 +157,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         </div>
                         <button
                             onClick={handleSignOut}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-md hover:bg-background transition-colors text-red-500"
+                            className="flex items-center gap-3 w-full px-4 py-3 rounded-md text-red-400 hover:bg-gray-900 hover:text-red-300 transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
                             {isSidebarOpen && <span className="font-medium">Logout</span>}
