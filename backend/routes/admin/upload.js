@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { cloudinary, uploadOptions } = require('../../config/cloudinary');
-const { verifyAuth, verifyAdmin } = require('../../middleware/auth');
+const { verifyAuth } = require('../../middleware/auth');
+const { verifyAdmin } = require('../../middleware/adminAuth');
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();

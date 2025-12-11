@@ -15,8 +15,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Request logging middleware (development only)
 if (process.env.NODE_ENV === 'development') {
@@ -36,20 +36,22 @@ app.get('/health', (req, res) => {
     });
 });
 
-// API Routes
+// Public API routes
 app.use('/api/products', require('./routes/products'));
 app.use('/api/collections', require('./routes/collections'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/home-sections', require('./routes/homeSections'));
 
-// Admin Routes
+// Admin API routes (protected)
 app.use('/api/admin/products', require('./routes/admin/products'));
-app.use('/api/admin/orders', require('./routes/admin/orders'));
-app.use('/api/admin/dashboard', require('./routes/admin/dashboard'));
 app.use('/api/admin/categories', require('./routes/admin/categories'));
 app.use('/api/admin/collections', require('./routes/admin/collections'));
-
+app.use('/api/admin/orders', require('./routes/admin/orders'));
+app.use('/api/admin/dashboard', require('./routes/admin/dashboard'));
+app.use('/api/admin/home-sections', require('./routes/admin/homeSections'));
+app.use('/api/admin/upload', require('./routes/admin/upload'));
 
 
 // 404 handler

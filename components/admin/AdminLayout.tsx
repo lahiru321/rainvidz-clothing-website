@@ -9,6 +9,7 @@ import {
     ShoppingCart,
     FolderOpen,
     Grid,
+    Image,
     LogOut,
     Menu,
     X
@@ -94,6 +95,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
         { name: 'Categories', href: '/admin/categories', icon: FolderOpen },
         { name: 'Collections', href: '/admin/collections', icon: Grid },
+        { name: 'Homepage Content', href: '/admin/home-content', icon: Image },
     ]
 
     return (
