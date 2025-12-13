@@ -43,6 +43,7 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/home-sections', require('./routes/homeSections'));
+app.use('/api/payment', require('./routes/payment'));
 
 // Admin API routes (protected)
 app.use('/api/admin/products', require('./routes/admin/products'));

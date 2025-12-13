@@ -7,10 +7,12 @@ import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { useCartStore } from "@/lib/store/cartStore"
+import { useConfirm } from "@/lib/contexts/ConfirmDialogContext"
 
 export default function CartPage() {
     const router = useRouter()
     const { items, loading, updateQuantity, removeItem, clearCart, getTotal } = useCartStore()
+    const { confirm } = useConfirm()
 
     const handleUpdateQuantity = (variantId: string, currentQuantity: number, change: number) => {
         const newQuantity = currentQuantity + change
@@ -20,15 +22,15 @@ export default function CartPage() {
     }
 
     const handleRemoveItem = (variantId: string) => {
-        if (confirm('Remove this item from cart?')) {
+        confirm('Remove this item from cart?', () => {
             removeItem(variantId)
-        }
+        })
     }
 
     const handleClearCart = () => {
-        if (confirm('Clear entire cart?')) {
+        confirm('Clear entire cart?', () => {
             clearCart()
-        }
+        })
     }
 
     const total = getTotal()

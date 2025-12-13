@@ -65,12 +65,11 @@ export default function AboutSection() {
                                 </a>
                             </div>
 
-                            {/* Social Media */}
                             <div className="mt-6">
                                 <p className="text-sm font-medium text-foreground/60 mb-3">Follow Us</p>
                                 <div className="flex gap-3">
                                     <a
-                                        href="https://instagram.com/rainvidz"
+                                        href="https://www.instagram.com/rainvidz.clothing?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center text-white hover:scale-110 transition-transform duration-300 shadow-lg hover:shadow-xl"
@@ -78,7 +77,7 @@ export default function AboutSection() {
                                         <Instagram className="w-6 h-6" />
                                     </a>
                                     <a
-                                        href="https://facebook.com/rainvidz"
+                                        href="https://www.facebook.com/rainvidz.clothing"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center text-white hover:scale-110 transition-transform duration-300 shadow-lg hover:shadow-xl"
