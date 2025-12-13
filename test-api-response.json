@@ -1,0 +1,102 @@
+﻿{
+    "success":  true,
+    "data":  {
+                 "products":  [
+                                  {
+                                      "_id":  "693076f3229df710d79ae70e",
+                                      "name":  "Linen Wide Leg Pants",
+                                      "slug":  "linen-wide-leg-pants",
+                                      "productCode":  "LWP-BGE-001",
+                                      "description":  "Comfortable wide-leg pants in breathable linen. Effortlessly chic.",
+                                      "price":  3790,
+                                      "category":  {
+                                                       "_id":  "693076f3229df710d79ae6e7",
+                                                       "name":  "Bottoms",
+                                                       "slug":  "bottoms"
+                                                   },
+                                      "collection":  {
+                                                         "_id":  "693076f2229df710d79ae6e0",
+                                                         "name":  "Summer Collection",
+                                                         "slug":  "summer-collection"
+                                                     },
+                                      "stockStatus":  "IN_STOCK",
+                                      "isNewArrival":  false,
+                                      "isFeatured":  false,
+                                      "soldCount":  29,
+                                      "images":  [
+                                                     {
+                                                         "url":  "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=800\u0026q=80",
+                                                         "isPrimary":  true,
+                                                         "isHover":  false,
+                                                         "displayOrder":  0,
+                                                         "_id":  "693076f3229df710d79ae70f",
+                                                         "id":  "693076f3229df710d79ae70f"
+                                                     }
+                                                 ],
+                                      "variants":  [
+                                                       {
+                                                           "color":  "Beige",
+                                                           "size":  "S",
+                                                           "quantity":  10,
+                                                           "sku":  "LWP-BGE-S",
+                                                           "_id":  "693076f3229df710d79ae710",
+                                                           "id":  "693076f3229df710d79ae710"
+                                                       },
+                                                       {
+                                                           "color":  "Beige",
+                                                           "size":  "M",
+                                                           "quantity":  15,
+                                                           "sku":  "LWP-BGE-M",
+                                                           "_id":  "693076f3229df710d79ae711",
+                                                           "id":  "693076f3229df710d79ae711"
+                                                       },
+                                                       {
+                                                           "color":  "Beige",
+                                                           "size":  "L",
+                                                           "quantity":  12,
+                                                           "sku":  "LWP-BGE-L",
+                                                           "_id":  "693076f3229df710d79ae712",
+                                                           "id":  "693076f3229df710d79ae712"
+                                                       },
+                                                       {
+                                                           "color":  "Black",
+                                                           "size":  "S",
+                                                           "quantity":  8,
+                                                           "sku":  "LWP-BLK-S",
+                                                           "_id":  "693076f3229df710d79ae713",
+                                                           "id":  "693076f3229df710d79ae713"
+                                                       },
+                                                       {
+                                                           "color":  "Black",
+                                                           "size":  "M",
+                                                           "quantity":  10,
+                                                           "sku":  "LWP-BLK-M",
+                                                           "_id":  "693076f3229df710d79ae714",
+                                                           "id":  "693076f3229df710d79ae714"
+                                                       },
+                                                       {
+                                                           "color":  "Black",
+                                                           "size":  "L",
+                                                           "quantity":  8,
+                                                           "sku":  "LWP-BLK-L",
+                                                           "_id":  "693076f3229df710d79ae715",
+                                                           "id":  "693076f3229df710d79ae715"
+                                                       }
+                                                   ],
+                                      "__v":  0,
+                                      "createdAt":  "2025-12-03T17:44:19.164Z",
+                                      "updatedAt":  "2025-12-03T17:44:19.164Z",
+                                      "effectivePrice":  3790,
+                                      "id":  "693076f3229df710d79ae70e",
+                                      "primaryImage":  "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=800\u0026q=80",
+                                      "hoverImage":  "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=800\u0026q=80"
+                                  }
+                              ]
+             },
+    "pagination":  {
+                       "page":  1,
+                       "limit":  1,
+                       "total":  8,
+                       "pages":  8
+                   }
+}

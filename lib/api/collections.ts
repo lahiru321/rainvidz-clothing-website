@@ -1,4 +1,5 @@
 import apiClient from './client';
+import { Product } from './products';
 
 export interface Collection {
     _id: string;
@@ -19,7 +20,7 @@ export interface CollectionWithProductsResponse {
     success: boolean;
     data: {
         collection: Collection;
-        products: any[]; // Use Product type from products.ts
+        products: Product[];
     };
 }
 

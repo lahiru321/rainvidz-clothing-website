@@ -118,6 +118,9 @@ productSchema.index({ isFeatured: 1 });
 productSchema.index({ soldCount: -1 });
 productSchema.index({ 'variants.sku': 1 }, { sparse: true });
 
+// Text search index for name and description
+productSchema.index({ name: 'text', description: 'text' });
+
 // Virtual for checking if product is on sale
 productSchema.virtual('isOnSale').get(function () {
     return this.salePrice && this.salePrice < this.price;
@@ -128,8 +131,22 @@ productSchema.virtual('effectivePrice').get(function () {
     return this.isOnSale ? this.salePrice : this.price;
 });
 
-// Ensure virtuals are included in JSON
-productSchema.set('toJSON', { virtuals: true });
+// Transform to add primary and hover image URLs at root level
+productSchema.set('toJSON', {
+    virtuals: true,
+    transform: function (doc, ret) {
+        // Add primary image URL at root level
+        const primaryImage = ret.images?.find(img => img.isPrimary);
+        ret.primaryImage = primaryImage ? primaryImage.url : (ret.images?.[0]?.url || '');
+
+        // Add hover image URL at root level
+        const hoverImage = ret.images?.find(img => img.isHover);
+        ret.hoverImage = hoverImage ? hoverImage.url : ret.primaryImage;
+
+        return ret;
+    }
+});
+
 productSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Product', productSchema);

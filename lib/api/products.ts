@@ -28,6 +28,8 @@ export interface Product {
         isHover: boolean;
         displayOrder: number;
     }>;
+    primaryImage: string;
+    hoverImage: string;
     variants: Array<{
         color: string;
         size: string;
@@ -40,7 +42,9 @@ export interface Product {
 
 export interface ProductsResponse {
     success: boolean;
-    data: Product[];
+    data: {
+        products: Product[];
+    };
     pagination: {
         page: number;
         limit: number;
@@ -64,9 +68,34 @@ export interface ProductFilters {
     color?: string;
     size?: string;
     sortBy?: 'price' | 'soldCount' | 'name' | 'createdAt';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+}
+
+export interface SearchFilters {
+    q?: string; // search query
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: 'relevance' | 'price' | 'newest' | 'name';
     order?: 'asc' | 'desc';
     page?: number;
     limit?: number;
+}
+
+export interface SearchResponse {
+    success: boolean;
+    data: {
+        products: Product[];
+        query: string;
+    };
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+    };
 }
 
 /**
@@ -74,6 +103,14 @@ export interface ProductFilters {
  */
 export const getProducts = async (filters?: ProductFilters): Promise<ProductsResponse> => {
     const response = await apiClient.get('/products', { params: filters });
+    return response.data;
+};
+
+/**
+ * Search products by text query with filters
+ */
+export const searchProducts = async (filters?: SearchFilters): Promise<SearchResponse> => {
+    const response = await apiClient.get('/products/search', { params: filters });
     return response.data;
 };
 

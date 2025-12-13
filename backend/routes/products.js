@@ -3,6 +3,101 @@ const router = express.Router();
 const Product = require('../models/Product');
 
 /**
+ * @route   GET /api/products/search
+ * @desc    Search products by text query with filters
+ * @access  Public
+ */
+router.get('/search', async (req, res) => {
+    try {
+        const {
+            q, // search query
+            category,
+            minPrice,
+            maxPrice,
+            sortBy = 'relevance',
+            order = 'desc',
+            page = 1,
+            limit = 12
+        } = req.query;
+
+        // Build filter object
+        const filter = {};
+
+        // Text search
+        if (q && q.trim()) {
+            filter.$text = { $search: q.trim() };
+        }
+
+        if (category) filter.category = category;
+
+        // Price range filter
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = Number(minPrice);
+            if (maxPrice) filter.price.$lte = Number(maxPrice);
+        }
+
+        // Build sort object
+        let sortOptions = {};
+        if (q && q.trim() && sortBy === 'relevance') {
+            // Sort by text search score when searching
+            sortOptions = { score: { $meta: 'textScore' } };
+        } else if (sortBy === 'price') {
+            sortOptions.price = order === 'asc' ? 1 : -1;
+        } else if (sortBy === 'newest') {
+            sortOptions.createdAt = -1;
+        } else if (sortBy === 'name') {
+            sortOptions.name = order === 'asc' ? 1 : -1;
+        } else {
+            sortOptions.createdAt = -1; // Default to newest
+        }
+
+        // Pagination
+        const skip = (Number(page) - 1) * Number(limit);
+
+        // Build query
+        let query = Product.find(filter)
+            .populate('category', 'name slug')
+            .populate('collection', 'name slug');
+
+        // Add text score projection if searching
+        if (q && q.trim() && sortBy === 'relevance') {
+            query = query.select({ score: { $meta: 'textScore' } });
+        }
+
+        // Execute query
+        const products = await query
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(Number(limit));
+
+        // Get total count for pagination
+        const total = await Product.countDocuments(filter);
+
+        res.json({
+            success: true,
+            data: {
+                products,
+                query: q || ''
+            },
+            pagination: {
+                page: Number(page),
+                limit: Number(limit),
+                total,
+                pages: Math.ceil(total / Number(limit))
+            }
+        });
+    } catch (error) {
+        console.error('Search products error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error',
+            message: error.message
+        });
+    }
+});
+
+/**
  * @route   GET /api/products
  * @desc    Get all products with filters and sorting
  * @access  Public
@@ -81,7 +176,7 @@ router.get('/', async (req, res) => {
 
         res.json({
             success: true,
-            data: products,
+            data: { products },
             pagination: {
                 page: Number(page),
                 limit: Number(limit),

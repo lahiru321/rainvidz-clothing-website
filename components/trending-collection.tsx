@@ -26,7 +26,7 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
                     isFeatured: true,
                     limit: 8
                 })
-                setProducts(response.data)
+                setProducts(response.data.products)
             } catch (error) {
                 console.error('Error fetching trending products:', error)
             } finally {
@@ -50,7 +50,7 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
 
     if (loading) {
         return (
-            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-t border-border/40">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-center h-64">
                         <p className="text-foreground/60">Loading trending products...</p>
@@ -61,12 +61,12 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
     }
 
     return (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-t border-border/40">
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-center justify-between mb-12">
                     <div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">Trending Collection</h2>
-                        <p className="text-foreground/60">Most loved pieces by our community</p>
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">Trending Now</h2>
+                        <p className="text-foreground/60">What everyone's loving</p>
                     </div>
                 </div>
 
@@ -79,23 +79,17 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
                     className="w-full"
                 >
                     <CarouselContent className="-ml-4">
-                        {products.map((product, index) => {
-                            const cardProduct = {
-                                id: index + 1,
-                                name: product.name,
-                                price: `Rs ${product.effectivePrice.toLocaleString()}`,
-                                category: product.category.name,
-                                image: product.images.find(img => img.isPrimary)?.url || product.images[0]?.url || '',
-                                hoverImage: product.images.find(img => img.isHover)?.url || product.images[1]?.url || '',
-                                slug: product.slug
-                            }
-
-                            return (
-                                <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                    <ProductCard product={cardProduct} onAddToCart={onAddToCart} />
-                                </CarouselItem>
-                            )
-                        })}
+                        {products.map((product) => (
+                            <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                <ProductCard
+                                    name={product.name}
+                                    price={product.price}
+                                    salePrice={product.salePrice}
+                                    image={product.primaryImage}
+                                    slug={product.slug}
+                                />
+                            </CarouselItem>
+                        ))}
                     </CarouselContent>
                     <div className="flex justify-end gap-2 mt-8">
                         <CarouselPrevious className="static translate-y-0" />
