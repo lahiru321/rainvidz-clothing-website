@@ -15,7 +15,7 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
     const [deleting, setDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [formData, setFormData] = useState({
-        type: 'hero' as 'hero' | 'banner',
+        type: 'hero' as 'hero' | 'banner' | 'card',
         title: '',
         subtitle: '',
         description: '',
@@ -24,6 +24,7 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
         ctaLink: '/shop',
         backgroundColor: '#A7C1A8',
         season: '',
+        tags: [] as string[],
         displayOrder: 0,
         isActive: true
     })
@@ -49,6 +50,7 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                 ctaLink: section.ctaLink || '/shop',
                 backgroundColor: section.backgroundColor || '#A7C1A8',
                 season: section.season || '',
+                tags: section.tags || [],
                 displayOrder: section.displayOrder,
                 isActive: section.isActive
             })
@@ -175,6 +177,16 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                                     />
                                     <span>Collection Banner</span>
                                 </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value="card"
+                                        checked={formData.type === 'card'}
+                                        onChange={(e) => setFormData({ ...formData, type: e.target.value as 'card' })}
+                                        className="w-4 h-4"
+                                    />
+                                    <span>Content Card</span>
+                                </label>
                             </div>
                         </div>
 
@@ -193,17 +205,19 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                             />
                         </div>
 
-                        {/* Subtitle */}
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Subtitle</label>
-                            <input
-                                type="text"
-                                value={formData.subtitle}
-                                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                className="w-full px-3 py-2 border border-border rounded-md bg-background"
-                                placeholder="Short tagline"
-                            />
-                        </div>
+                        {/* Subtitle - Only for hero */}
+                        {formData.type === 'hero' && (
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Subtitle</label>
+                                <input
+                                    type="text"
+                                    value={formData.subtitle}
+                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                                    className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                                    placeholder="Short tagline"
+                                />
+                            </div>
+                        )}
 
                         {/* Description */}
                         <div>
@@ -287,29 +301,50 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                             )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* CTA Text */}
+                        {/* Tags - Only for card */}
+                        {formData.type === 'card' && (
                             <div>
-                                <label className="block text-sm font-medium mb-2">Button Text</label>
+                                <label className="block text-sm font-medium mb-2">Tags</label>
                                 <input
                                     type="text"
-                                    value={formData.ctaText}
-                                    onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
+                                    value={formData.tags.join(', ')}
+                                    onChange={(e) => {
+                                        const tags = e.target.value.split(',').map(t => t.trim()).filter(t => t)
+                                        setFormData({ ...formData, tags })
+                                    }}
                                     className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                                    placeholder="e.g., summer, collection, new (comma-separated)"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Enter tags separated by commas. Tags will be clickable on the homepage.</p>
                             </div>
+                        )}
 
-                            {/* CTA Link */}
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Button Link</label>
-                                <input
-                                    type="text"
-                                    value={formData.ctaLink}
-                                    onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
-                                    className="w-full px-3 py-2 border border-border rounded-md bg-background"
-                                />
+                        {/* CTA buttons - Not for card */}
+                        {formData.type !== 'card' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* CTA Text */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Button Text</label>
+                                    <input
+                                        type="text"
+                                        value={formData.ctaText}
+                                        onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
+                                        className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                                    />
+                                </div>
+
+                                {/* CTA Link */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Button Link</label>
+                                    <input
+                                        type="text"
+                                        value={formData.ctaLink}
+                                        onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
+                                        className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {formData.type === 'banner' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

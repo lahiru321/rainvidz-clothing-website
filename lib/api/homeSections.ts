@@ -2,7 +2,7 @@ import apiClient from './client';
 
 export interface HomeSection {
     _id: string;
-    type: 'hero' | 'banner';
+    type: 'hero' | 'banner' | 'card';
     title: string;
     subtitle?: string;
     description?: string;
@@ -11,6 +11,7 @@ export interface HomeSection {
     ctaLink?: string;
     backgroundColor?: string;
     season?: string;
+    tags?: string[];
     displayOrder: number;
     isActive: boolean;
     createdAt: string;
@@ -30,5 +31,13 @@ export const getHeroSlides = async () => {
  */
 export const getCollectionBanners = async () => {
     const response = await apiClient.get('/home-sections?type=banner');
+    return response.data;
+};
+
+/**
+ * Get content cards (public)
+ */
+export const getContentCards = async () => {
+    const response = await apiClient.get('/home-sections?type=card');
     return response.data;
 };

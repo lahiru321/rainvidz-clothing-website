@@ -4,7 +4,7 @@ const homeSectionSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ['hero', 'banner'],
+        enum: ['hero', 'banner', 'card'],
         index: true
     },
     title: {
@@ -39,6 +39,10 @@ const homeSectionSchema = new mongoose.Schema({
     season: {
         type: String,
         trim: true
+    },
+    tags: {
+        type: [String],
+        default: []
     },
     displayOrder: {
         type: Number,

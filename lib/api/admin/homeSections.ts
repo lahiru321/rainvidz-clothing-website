@@ -2,7 +2,7 @@ import apiClient from '../client';
 
 export interface HomeSection {
     _id: string;
-    type: 'hero' | 'banner';
+    type: 'hero' | 'banner' | 'card';
     title: string;
     subtitle?: string;
     description?: string;
@@ -11,6 +11,7 @@ export interface HomeSection {
     ctaLink?: string;
     backgroundColor?: string;
     season?: string;
+    tags?: string[];
     displayOrder: number;
     isActive: boolean;
     createdAt: string;
@@ -18,7 +19,7 @@ export interface HomeSection {
 }
 
 export interface HomeSectionCreateData {
-    type: 'hero' | 'banner';
+    type: 'hero' | 'banner' | 'card';
     title: string;
     subtitle?: string;
     description?: string;
@@ -27,6 +28,7 @@ export interface HomeSectionCreateData {
     ctaLink?: string;
     backgroundColor?: string;
     season?: string;
+    tags?: string[];
     displayOrder?: number;
     isActive?: boolean;
 }
@@ -34,7 +36,7 @@ export interface HomeSectionCreateData {
 /**
  * Get all home sections
  */
-export const getHomeSections = async (type?: 'hero' | 'banner') => {
+export const getHomeSections = async (type?: 'hero' | 'banner' | 'card') => {
     const url = type ? `/admin/home-sections?type=${type}` : '/admin/home-sections';
     const response = await apiClient.get(url);
     return response.data;

@@ -11,7 +11,7 @@ export default function AdminHomeContentPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [deleting, setDeleting] = useState<string | null>(null)
-    const [filter, setFilter] = useState<'all' | 'hero' | 'banner'>('all')
+    const [filter, setFilter] = useState<'all' | 'hero' | 'banner' | 'card'>('all')
 
     useEffect(() => {
         fetchSections()
@@ -50,9 +50,13 @@ export default function AdminHomeContentPage() {
     }
 
     const getTypeBadge = (type: string) => {
-        return type === 'hero'
-            ? <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Hero</span>
-            : <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Banner</span>
+        if (type === 'hero') {
+            return <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Hero</span>
+        } else if (type === 'banner') {
+            return <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Banner</span>
+        } else {
+            return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Card</span>
+        }
     }
 
     return (
@@ -62,7 +66,7 @@ export default function AdminHomeContentPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-primary">Homepage Content</h1>
-                        <p className="text-foreground/60 mt-1">Manage hero slides and collection banners</p>
+                        <p className="text-foreground/60 mt-1">Manage hero slides, collection banners, and content cards</p>
                     </div>
                     <Link
                         href="/admin/home-content/new"
@@ -109,6 +113,15 @@ export default function AdminHomeContentPage() {
                     >
                         Collection Banners
                     </button>
+                    <button
+                        onClick={() => setFilter('card')}
+                        className={`px-4 py-2 font-medium transition-colors ${filter === 'card'
+                            ? 'text-sage border-b-2 border-sage'
+                            : 'text-foreground/60 hover:text-foreground'
+                            }`}
+                    >
+                        Content Cards
+                    </button>
                 </div>
 
                 {/* Content Table */}
@@ -134,6 +147,7 @@ export default function AdminHomeContentPage() {
                                         <th className="text-left py-3 px-4 font-semibold text-primary">Preview</th>
                                         <th className="text-left py-3 px-4 font-semibold text-primary">Type</th>
                                         <th className="text-left py-3 px-4 font-semibold text-primary">Title</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-primary">Tags</th>
                                         <th className="text-left py-3 px-4 font-semibold text-primary">Order</th>
                                         <th className="text-left py-3 px-4 font-semibold text-primary">Status</th>
                                         <th className="text-right py-3 px-4 font-semibold text-primary">Actions</th>
@@ -159,6 +173,19 @@ export default function AdminHomeContentPage() {
                                                         <p className="text-sm text-foreground/60">{section.subtitle}</p>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                {section.tags && section.tags.length > 0 ? (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {section.tags.map((tag, idx) => (
+                                                            <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-foreground/40 text-sm">—</span>
+                                                )}
                                             </td>
                                             <td className="py-3 px-4 text-foreground/60">{section.displayOrder}</td>
                                             <td className="py-3 px-4">

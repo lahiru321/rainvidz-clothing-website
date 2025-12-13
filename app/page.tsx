@@ -3,8 +3,8 @@
 import { useState } from "react"
 import Header from "@/components/header"
 import HeroSection from "@/components/hero-section"
+import ContentCards from "@/components/content-cards"
 import NewArrivals from "@/components/new-arrivals"
-import FeaturedCollection from "@/components/featured-collection"
 import TrendingCollection from "@/components/trending-collection"
 import CollectionBanner from "@/components/collection-banner"
 import ShopSection from "@/components/shop-section"
@@ -23,7 +23,7 @@ export default function Home() {
       <Header cartCount={cartCount} />
       <HeroSection />
       <NewArrivals onAddToCart={handleAddToCart} />
-      <FeaturedCollection />
+      <ContentCards />
       <TrendingCollection onAddToCart={handleAddToCart} />
       <CollectionBanner />
       <ShopSection onAddToCart={handleAddToCart} />
