@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ChevronRight, Grid3x3, SlidersHorizontal } from "lucide-react"
+import { ChevronRight, Grid3x3 } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ProductCard from "@/components/product-card"
+import CustomDropdown from "@/components/custom-dropdown"
 import { getProducts, type Product } from "@/lib/api/products"
 import { getCategories, type Category } from "@/lib/api/categories"
 
@@ -15,7 +16,6 @@ export default function ShopPage() {
     const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState<string>('')
     const [sortBy, setSortBy] = useState<string>('newest')
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000])
 
     useEffect(() => {
         fetchData()
@@ -70,10 +70,7 @@ export default function ShopPage() {
         }
     }
 
-    const filteredProducts = (products || []).filter(product => {
-        const price = product.salePrice || product.price
-        return price >= priceRange[0] && price <= priceRange[1]
-    })
+    const filteredProducts = products || []
 
     return (
         <div className="min-h-screen bg-background">
@@ -82,103 +79,69 @@ export default function ShopPage() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-2 text-sm text-foreground/60 mb-8">
-                    <Link href="/" className="hover:text-primary">Home</Link>
+                    <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                     <ChevronRight className="w-4 h-4" />
-                    <span className="text-foreground">Shop</span>
+                    <span className="text-foreground font-medium">Shop</span>
                 </nav>
 
-                {/* Page Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">
-                        Shop All Products
-                    </h1>
-                    <p className="text-foreground/60">
-                        {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
-                    </p>
-                </div>
-
-                {/* Horizontal Filters */}
-                <div className="mb-8 bg-secondary p-6 rounded-lg">
-                    <div className="flex items-center gap-2 mb-6">
-                        <SlidersHorizontal className="w-5 h-5 text-primary" />
-                        <h2 className="text-xl font-semibold text-primary">Filters</h2>
+                {/* Header with Filters */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12 pb-6 border-b border-border">
+                    {/* Title & Count */}
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-2">
+                            Shop
+                        </h1>
+                        <p className="text-foreground/60">
+                            {filteredProducts.length} products
+                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Category Filter */}
-                        <div>
-                            <h3 className="font-medium mb-3">Category</h3>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
-                            >
-                                <option value="">All Products</option>
-                                {categories.map((category) => (
-                                    <option key={category._id} value={category._id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* Inline Filters */}
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Category Dropdown */}
+                        <CustomDropdown
+                            options={[
+                                { value: '', label: 'All Categories' },
+                                ...categories.map(cat => ({ value: cat._id, label: cat.name }))
+                            ]}
+                            value={selectedCategory}
+                            onChange={setSelectedCategory}
+                            placeholder="All Categories"
+                            className="w-48"
+                        />
 
-                        {/* Price Range */}
-                        <div>
-                            <h3 className="font-medium mb-3">Price Range</h3>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    value={priceRange[0]}
-                                    onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                                    className="w-full px-3 py-2 border border-border rounded-md text-sm"
-                                    placeholder="Min"
-                                />
-                                <span className="text-foreground/60">-</span>
-                                <input
-                                    type="number"
-                                    value={priceRange[1]}
-                                    onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                                    className="w-full px-3 py-2 border border-border rounded-md text-sm"
-                                    placeholder="Max"
-                                />
-                            </div>
-                            <p className="text-xs text-foreground/60 mt-2">
-                                Rs {priceRange[0].toLocaleString()} - Rs {priceRange[1].toLocaleString()}
-                            </p>
-                        </div>
-
-                        {/* Sort By */}
-                        <div>
-                            <h3 className="font-medium mb-3">Sort By</h3>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
-                            >
-                                <option value="newest">Newest First</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                            </select>
-                        </div>
+                        {/* Sort Dropdown */}
+                        <CustomDropdown
+                            options={[
+                                { value: 'newest', label: 'Newest' },
+                                { value: 'price-low', label: 'Price: Low to High' },
+                                { value: 'price-high', label: 'Price: High to Low' }
+                            ]}
+                            value={sortBy}
+                            onChange={setSortBy}
+                            placeholder="Sort By"
+                            className="w-48"
+                        />
                     </div>
                 </div>
 
-                {/* Products Grid - 4 columns */}
+                {/* Products Grid */}
                 {loading ? (
-                    <div className="text-center py-12">
-                        <p className="text-foreground/60">Loading products...</p>
+                    <div className="text-center py-20">
+                        <div className="inline-block w-12 h-12 border-4 border-sage border-t-transparent rounded-full animate-spin mb-4" />
+                        <p className="text-foreground/60">Loading...</p>
                     </div>
                 ) : filteredProducts.length === 0 ? (
-                    <div className="text-center py-16">
+                    <div className="text-center py-20">
                         <Grid3x3 className="w-16 h-16 mx-auto text-foreground/20 mb-4" />
-                        <h3 className="text-xl font-semibold mb-2">No Products Found</h3>
+                        <h3 className="text-xl font-semibold mb-2">No products found</h3>
                         <p className="text-foreground/60 mb-6">Try adjusting your filters</p>
                         <button
                             onClick={() => {
                                 setSelectedCategory('')
-                                setPriceRange([0, 10000])
+                                setSortBy('newest')
                             }}
-                            className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90"
+                            className="px-6 py-3 bg-sage text-white rounded-lg font-medium hover:bg-sage/90 transition-colors"
                         >
                             Clear Filters
                         </button>

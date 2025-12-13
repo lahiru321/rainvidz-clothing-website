@@ -109,7 +109,7 @@ export default function Header() {
               Shop
             </Link>
             <Link
-              href="#about"
+              href="/#about"
               className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
             >
               About
@@ -219,7 +219,7 @@ export default function Header() {
               Shop
             </Link>
             <Link
-              href="#about"
+              href="/#about"
               className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
             >
               About
