@@ -1,12 +1,52 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, ShoppingBag, Search } from "lucide-react"
-import { collections } from "@/lib/data"
+import { useRouter } from "next/navigation"
+import { Menu, X, ShoppingBag, Search, User, LogOut, Package, ChevronDown } from "lucide-react"
+import { useCartStore } from "@/lib/store/cartStore"
+import { useAuth } from "@/lib/contexts/AuthContext"
+import { getCollections, type Collection } from "@/lib/api/collections"
 
-export default function Header({ cartCount }: { cartCount: number }) {
+export default function Header() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isCollectionsOpen, setIsCollectionsOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isMounted, setIsMounted] = useState(false)
+  const [collections, setCollections] = useState<Collection[]>([])
+  const cartItemCount = useCartStore((state) => state.getItemCount())
+  const { user, signOut } = useAuth()
+
+  useEffect(() => {
+    setIsMounted(true)
+    fetchCollections()
+  }, [])
+
+  const fetchCollections = async () => {
+    try {
+      const response = await getCollections()
+      setCollections(response.data)
+    } catch (error) {
+      console.error('Error fetching collections:', error)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    setIsUserMenuOpen(false)
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery("")
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
@@ -25,24 +65,43 @@ export default function Header({ cartCount }: { cartCount: number }) {
             >
               New Arrivals
             </Link>
-            <div className="relative group">
-              <button className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300 flex items-center gap-1">
+
+            {/* Collections Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCollectionsOpen(!isCollectionsOpen)}
+                onMouseEnter={() => setIsCollectionsOpen(true)}
+                className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
+              >
                 Collections
+                <ChevronDown className="w-4 h-4" />
               </button>
-              <div className="absolute top-full left-0 w-56 bg-background border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <div className="py-2">
+
+              {/* Dropdown Menu */}
+              {isCollectionsOpen && (
+                <div
+                  onMouseLeave={() => setIsCollectionsOpen(false)}
+                  className="absolute left-0 mt-2 w-56 bg-background border border-border rounded-md shadow-lg py-2"
+                >
                   {collections.map((collection) => (
                     <Link
-                      key={collection.slug}
+                      key={collection._id}
                       href={`/collections/${collection.slug}`}
-                      className="block px-4 py-3 text-sm text-foreground hover:bg-secondary hover:text-accent transition-colors"
+                      onClick={() => setIsCollectionsOpen(false)}
+                      className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
                     >
                       {collection.name}
                     </Link>
                   ))}
+                  {collections.length === 0 && (
+                    <div className="px-4 py-2 text-sm text-foreground/60">
+                      No collections available
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
+
             <Link
               href="/shop"
               className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
@@ -50,7 +109,7 @@ export default function Header({ cartCount }: { cartCount: number }) {
               Shop
             </Link>
             <Link
-              href="#about"
+              href="/#about"
               className="text-sm font-medium text-foreground hover:text-accent transition-colors duration-300"
             >
               About
@@ -59,17 +118,65 @@ export default function Header({ cartCount }: { cartCount: number }) {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-secondary transition-colors duration-300">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 hover:bg-secondary transition-colors duration-300"
+            >
               <Search className="w-5 h-5" />
             </button>
-            <button className="relative p-2 hover:bg-secondary transition-colors duration-300">
+
+            <Link href="/cart" className="relative p-2 hover:bg-secondary transition-colors duration-300">
               <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                  {cartCount}
+              {isMounted && cartItemCount > 0 && (
+                <span className="absolute top-1 right-1 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemCount}
                 </span>
               )}
-            </button>
+            </Link>
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 p-2 hover:bg-secondary transition-colors duration-300 rounded-md"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="hidden md:block text-sm font-medium">
+                    {user.user_metadata?.full_name || 'Account'}
+                  </span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md shadow-lg py-2">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    >
+                      <Package className="w-4 h-4" />
+                      My Orders
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+              >
+                <User className="w-5 h-5" />
+                Login
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2">
@@ -87,12 +194,24 @@ export default function Header({ cartCount }: { cartCount: number }) {
             >
               New Arrivals
             </Link>
-            <Link
-              href="#"
-              className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
-            >
-              Collections
-            </Link>
+
+            {/* Collections in Mobile */}
+            <div className="py-2">
+              <div className="text-sm font-medium text-foreground mb-2">Collections</div>
+              <div className="pl-4 space-y-2">
+                {collections.map((collection) => (
+                  <Link
+                    key={collection._id}
+                    href={`/collections/${collection.slug}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block py-1 text-sm text-foreground/80 hover:text-accent transition-colors"
+                  >
+                    {collection.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <Link
               href="/shop"
               className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
@@ -100,14 +219,82 @@ export default function Header({ cartCount }: { cartCount: number }) {
               Shop
             </Link>
             <Link
-              href="#about"
+              href="/#about"
               className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
             >
               About
             </Link>
+
+            {/* Mobile User Links */}
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  My Orders
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="block py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </nav>
         )}
       </div>
+
+      {/* Search Modal */}
+      {isSearchOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-20"
+          onClick={() => setIsSearchOpen(false)}
+        >
+          <div
+            className="bg-background w-full max-w-2xl mx-4 rounded-lg shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSearch} className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Search className="w-5 h-5 text-foreground/60" />
+                <h2 className="text-xl font-semibold">Search Products</h2>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products..."
+                  autoFocus
+                  className="flex-1 px-4 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-accent bg-background"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="px-4 py-3 border border-border rounded-md hover:bg-secondary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

@@ -1,0 +1,522 @@
+{
+    "info": {
+        "name": "Clothing Website API",
+        "description": "Complete API collection for the clothing e-commerce website",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/health",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products?page=1&limit=12",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "12"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "desc",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "isNewArrival",
+                                    "value": "true",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "isFeatured",
+                                    "value": "true",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Product by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products/novela-tee-black",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products",
+                                "novela-tee-black"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get New Arrivals",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products?isNewArrival=true",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "isNewArrival",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Featured Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products?isFeatured=true",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "isFeatured",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Price Range",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products?minPrice=2000&maxPrice=4000",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "minPrice",
+                                    "value": "2000"
+                                },
+                                {
+                                    "key": "maxPrice",
+                                    "value": "4000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Sort by Price (Low to High)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/products?sortBy=price&order=asc",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "sortBy",
+                                    "value": "price"
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "asc"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Collections",
+            "item": [
+                {
+                    "name": "Get All Collections",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/collections",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "collections"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Collection by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/collections/summer-collection",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "collections",
+                                "summer-collection"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/categories",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "categories"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Category by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{apiUrl}}/categories/tops",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "categories",
+                                "tops"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cart (Auth Required)",
+            "item": [
+                {
+                    "name": "Get Cart",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{apiUrl}}/cart",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "cart"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add to Cart",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"productId\": \"PASTE_PRODUCT_ID_HERE\",\n  \"variantId\": \"NT-BLK-S\",\n  \"quantity\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{apiUrl}}/cart/add",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "cart",
+                                "add"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Cart Item",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"quantity\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{apiUrl}}/cart/update/:itemId",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "cart",
+                                "update",
+                                ":itemId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "itemId",
+                                    "value": "PASTE_ITEM_ID_HERE"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Remove from Cart",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{apiUrl}}/cart/remove/:itemId",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "cart",
+                                "remove",
+                                ":itemId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "itemId",
+                                    "value": "PASTE_ITEM_ID_HERE"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Clear Cart",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{apiUrl}}/cart/clear",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "cart",
+                                "clear"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "item": [
+                {
+                    "name": "Create Order (Guest)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"customer@example.com\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+94771234567\",\n  \"shippingAddress\": {\n    \"addressLine1\": \"123 Main Street\",\n    \"city\": \"Colombo\",\n    \"postalCode\": \"10100\"\n  },\n  \"paymentMethod\": \"PAYHERE\",\n  \"items\": [\n    {\n      \"productId\": \"PASTE_PRODUCT_ID_HERE\",\n      \"variantId\": \"NT-BLK-S\",\n      \"quantity\": 1\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{apiUrl}}/orders/create",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "create"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{apiUrl}}/orders/user",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "user"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Order by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{apiUrl}}/orders/:orderId",
+                            "host": [
+                                "{{apiUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                ":orderId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderId",
+                                    "value": "PASTE_ORDER_ID_HERE"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "apiUrl",
+            "value": "http://localhost:5000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "YOUR_SUPABASE_JWT_TOKEN_HERE",
+            "type": "string"
+        }
+    ]
+}

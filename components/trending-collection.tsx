@@ -11,45 +11,33 @@ import {
     type CarouselApi
 } from "@/components/ui/carousel"
 import ProductCard from "./product-card"
-
-const trendingProducts = [
-    {
-        id: 7,
-        name: "Tiered Midi Dress",
-        price: "$110",
-        category: "Dresses",
-        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80",
-    },
-    {
-        id: 8,
-        name: "Vintage Denim Jacket",
-        price: "$145",
-        category: "Outerwear",
-        image: "https://images.unsplash.com/photo-1544642899-f0d6e5f6ed6f?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1544642899-f0d6e5f6ed6f?w=800&q=80",
-    },
-    {
-        id: 9,
-        name: "Kimono Cardigan",
-        price: "$85",
-        category: "Outerwear",
-        image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80",
-    },
-    {
-        id: 10,
-        name: "Wide Brim Fedora",
-        price: "$55",
-        category: "Accessories",
-        image: "https://images.unsplash.com/photo-1533827432537-70133748f5c8?w=800&q=80",
-        hoverImage: "https://images.unsplash.com/photo-1533827432537-70133748f5c8?w=800&q=80",
-    }
-]
+import { getProducts, type Product } from "@/lib/api/products"
 
 export default function TrendingCollection({ onAddToCart }: { onAddToCart: () => void }) {
     const [api, setApi] = useState<CarouselApi>()
+    const [products, setProducts] = useState<Product[]>([])
+    const [loading, setLoading] = useState(true)
 
+    // Fetch trending/featured products from API
+    useEffect(() => {
+        const fetchTrendingProducts = async () => {
+            try {
+                const response = await getProducts({
+                    isFeatured: true,
+                    limit: 8
+                })
+                setProducts(response.data.products)
+            } catch (error) {
+                console.error('Error fetching trending products:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchTrendingProducts()
+    }, [])
+
+    // Auto-scroll carousel
     useEffect(() => {
         if (!api) return
 
@@ -60,13 +48,25 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
         return () => clearInterval(intervalId)
     }, [api])
 
+    if (loading) {
+        return (
+            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-t border-border/40">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-center h-64">
+                        <p className="text-foreground/60">Loading trending products...</p>
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
     return (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-t border-border/40">
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-center justify-between mb-12">
                     <div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">Trending Collection</h2>
-                        <p className="text-foreground/60">Most loved pieces by our community</p>
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">Trending Now</h2>
+                        <p className="text-foreground/60">What everyone's loving</p>
                     </div>
                 </div>
 
@@ -79,9 +79,15 @@ export default function TrendingCollection({ onAddToCart }: { onAddToCart: () =>
                     className="w-full"
                 >
                     <CarouselContent className="-ml-4">
-                        {trendingProducts.map((product) => (
-                            <CarouselItem key={product.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                                <ProductCard product={product} onAddToCart={onAddToCart} />
+                        {products.map((product) => (
+                            <CarouselItem key={product._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                                <ProductCard
+                                    name={product.name}
+                                    price={product.price}
+                                    salePrice={product.salePrice}
+                                    image={product.primaryImage}
+                                    slug={product.slug}
+                                />
                             </CarouselItem>
                         ))}
                     </CarouselContent>

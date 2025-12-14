@@ -3,34 +3,60 @@ import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-
-// <CHANGE> Updated fonts to use elegant serif for headings
 import { Playfair_Display } from "next/font/google"
+import { AuthProvider } from "@/lib/contexts/AuthContext"
+import { ToastProvider } from "@/lib/contexts/ToastContext"
+import { ConfirmDialogProvider } from "@/lib/contexts/ConfirmDialogContext"
 
 const geist = Geist({ subsets: ["latin"] })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
 
 export const metadata: Metadata = {
-  title: "Rainvidz",
-  // description: "Discover modern luxury fashion with curated collections",
-  // generator: "v0.app",
-  // icons: {
-  //   icon: [
-  //     {
-  //       url: "/icon-light-32x32.png",
-  //       media: "(prefers-color-scheme: light)",
-  //     },
-  //     {
-  //       url: "/icon-dark-32x32.png",
-  //       media: "(prefers-color-scheme: dark)",
-  //     },
-  //     {
-  //       url: "/icon.svg",
-  //       type: "image/svg+xml",
-  //     },
-  //   ],
-  //   apple: "/apple-icon.png",
-  // },
+  title: {
+    default: 'Rainvidz - Bohemian Fashion & Clothing',
+    template: '%s | Rainvidz'
+  },
+  description: 'Discover unique bohemian fashion and free-spirited clothing. Shop our curated collection of dresses, tops, and accessories in Sri Lanka.',
+  keywords: ['bohemian clothing', 'hippie fashion', 'women clothing', 'sustainable fashion', 'Sri Lanka', 'Rainvidz', 'boho style', 'free spirit fashion'],
+  authors: [{ name: 'Rainvidz' }],
+  creator: 'Rainvidz',
+  publisher: 'Rainvidz',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://rainvidz.com',
+    siteName: 'Rainvidz',
+    title: 'Rainvidz - Bohemian Fashion & Clothing',
+    description: 'Discover unique bohemian fashion and free-spirited clothing. Shop our curated collection in Sri Lanka.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Rainvidz Bohemian Fashion Collection'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Rainvidz - Bohemian Fashion & Clothing',
+    description: 'Discover unique bohemian fashion and free-spirited clothing.',
+    images: ['/og-image.jpg']
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
+    }
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  }
 }
 
 export default function RootLayout({
@@ -41,7 +67,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased ${playfair.variable}`}>
-        {children}
+        <AuthProvider>
+          <ToastProvider>
+            <ConfirmDialogProvider>
+              {children}
+            </ConfirmDialogProvider>
+          </ToastProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
