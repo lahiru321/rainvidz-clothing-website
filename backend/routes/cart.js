@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const { verifyAuth } = require('../middleware/auth');
+const { verifySupabaseToken } = require('../middleware/supabaseAuth');
 
 // All cart routes require authentication
-router.use(verifyAuth);
+router.use(verifySupabaseToken);
 
 /**
  * @route   GET /api/cart

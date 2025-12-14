@@ -3,14 +3,14 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const { verifyAuth, optionalAuth } = require('../middleware/auth');
+const { verifySupabaseToken } = require('../middleware/supabaseAuth');
 
 /**
  * @route   POST /api/orders/create
  * @desc    Create new order
  * @access  Public (supports guest checkout)
  */
-router.post('/create', optionalAuth, async (req, res) => {
+router.post('/create', async (req, res) => {
     try {
         const {
             email,
@@ -42,7 +42,7 @@ router.post('/create', optionalAuth, async (req, res) => {
                 if (!product) {
                     return res.status(404).json({
                         success: false,
-                        error: `Product not found: ${item.productId}`
+                        error: `Product not found: ${item.productId} `
                     });
                 }
 
@@ -160,7 +160,7 @@ router.post('/create', optionalAuth, async (req, res) => {
  * @desc    Get user's order history
  * @access  Private
  */
-router.get('/user', verifyAuth, async (req, res) => {
+router.get('/user', verifySupabaseToken, async (req, res) => {
     try {
         const orders = await Order.find({ supabaseUserId: req.userId })
             .sort({ createdAt: -1 });
@@ -184,7 +184,7 @@ router.get('/user', verifyAuth, async (req, res) => {
  * @desc    Get specific order details
  * @access  Public (guests can view their orders, authenticated users can only view their own)
  */
-router.get('/:id', optionalAuth, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
 

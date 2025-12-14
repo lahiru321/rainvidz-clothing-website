@@ -149,7 +149,7 @@ export default function Footer() {
               <span className="text-sm text-primary-foreground/60">Follow Us:</span>
               <div className="flex gap-3">
                 <a
-                  href="https://instagram.com/rainvidz"
+                  href="https://www.instagram.com/rainvidz.clothing?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"
@@ -158,7 +158,7 @@ export default function Footer() {
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://facebook.com/rainvidz"
+                  href="https://www.facebook.com/rainvidz.clothing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"

@@ -1,11 +1,176 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { slugify, generateSKU } from "@/lib/utils/slugify"
 import { getCategories, type Category } from "@/lib/api/categories"
 import { getCollections, type Collection } from "@/lib/api/collections"
-import { Plus, Trash2, Image as ImageIcon } from "lucide-react"
+import { uploadImage } from "@/lib/api/admin/upload"
+import { Plus, Trash2, Image as ImageIcon, Upload, X } from "lucide-react"
 import type { ProductCreateData } from "@/lib/api/admin/products"
+import Image from "next/image"
+
+// Image Upload Row Component
+interface ImageUploadRowProps {
+    image: ProductCreateData['images'][0]
+    index: number
+    onUpdate: (index: number, field: keyof ProductCreateData['images'][0], value: any) => void
+    onRemove: () => void
+}
+
+function ImageUploadRow({ image, index, onUpdate, onRemove }: ImageUploadRowProps) {
+    const [uploading, setUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file')
+            return
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB')
+            return
+        }
+
+        try {
+            setUploading(true)
+            setUploadProgress(0)
+
+            // Simulate progress
+            const progressInterval = setInterval(() => {
+                setUploadProgress(prev => Math.min(prev + 10, 90))
+            }, 200)
+
+            const response = await uploadImage(file)
+
+            clearInterval(progressInterval)
+            setUploadProgress(100)
+
+            // Update image URL
+            onUpdate(index, 'url', response.url)
+
+            setTimeout(() => {
+                setUploading(false)
+                setUploadProgress(0)
+            }, 500)
+        } catch (error) {
+            console.error('Upload error:', error)
+            alert('Failed to upload image. Please try again.')
+            setUploading(false)
+            setUploadProgress(0)
+        }
+    }
+
+    return (
+        <div className="p-4 bg-background rounded-md border border-border">
+            <div className="grid grid-cols-1 gap-4">
+                {/* Image Preview and Upload */}
+                <div className="flex items-start gap-4">
+                    {/* Preview */}
+                    {image.url && (
+                        <div className="relative w-24 h-24 rounded-md overflow-hidden border border-border flex-shrink-0">
+                            <Image
+                                src={image.url}
+                                alt="Product image"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    )}
+
+                    {/* Upload Button and URL Input */}
+                    <div className="flex-1 space-y-2">
+                        <div className="flex gap-2">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                                className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors disabled:opacity-50 text-sm font-medium"
+                            >
+                                <Upload className="w-4 h-4" />
+                                {uploading ? 'Uploading...' : 'Upload Image'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onRemove}
+                                className="p-2 hover:bg-red-50 rounded-md transition-colors"
+                                title="Remove"
+                            >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                            </button>
+                        </div>
+
+                        {/* Progress Bar */}
+                        {uploading && (
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                                    style={{ width: `${uploadProgress}%` }}
+                                />
+                            </div>
+                        )}
+
+                        {/* URL Input */}
+                        <input
+                            type="url"
+                            value={image.url}
+                            onChange={(e) => onUpdate(index, 'url', e.target.value)}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-secondary text-sm"
+                            placeholder="Or paste image URL here"
+                        />
+                    </div>
+                </div>
+
+                {/* Image Options */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            checked={image.isPrimary}
+                            onChange={(e) => onUpdate(index, 'isPrimary', e.target.checked)}
+                            className="w-4 h-4"
+                        />
+                        <span className="font-medium">Primary Image</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            checked={image.isHover}
+                            onChange={(e) => onUpdate(index, 'isHover', e.target.checked)}
+                            className="w-4 h-4"
+                        />
+                        <span className="font-medium">Hover Image</span>
+                    </label>
+
+                    <div>
+                        <label className="block text-xs text-foreground/60 mb-1">Display Order</label>
+                        <input
+                            type="number"
+                            value={image.displayOrder}
+                            onChange={(e) => onUpdate(index, 'displayOrder', Number(e.target.value))}
+                            className="w-full px-2 py-1 border border-border rounded-md bg-secondary text-sm"
+                            min="0"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 interface ProductFormProps {
     initialData?: Partial<ProductCreateData>
@@ -389,61 +554,13 @@ export default function ProductForm({ initialData, onSubmit, submitLabel = "Crea
                 ) : (
                     <div className="space-y-3">
                         {formData.images.map((image, index) => (
-                            <div key={index} className="p-4 bg-background rounded-md border border-border">
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-                                    <div className="md:col-span-6">
-                                        <input
-                                            type="url"
-                                            value={image.url}
-                                            onChange={(e) => updateImage(index, 'url', e.target.value)}
-                                            className="w-full px-3 py-2 border border-border rounded-md bg-secondary text-sm"
-                                            placeholder="https://example.com/image.jpg"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-2 flex items-center gap-2">
-                                        <label className="flex items-center gap-1 text-sm">
-                                            <input
-                                                type="checkbox"
-                                                checked={image.isPrimary}
-                                                onChange={(e) => updateImage(index, 'isPrimary', e.target.checked)}
-                                                className="w-4 h-4"
-                                            />
-                                            Primary
-                                        </label>
-                                    </div>
-                                    <div className="md:col-span-2 flex items-center gap-2">
-                                        <label className="flex items-center gap-1 text-sm">
-                                            <input
-                                                type="checkbox"
-                                                checked={image.isHover}
-                                                onChange={(e) => updateImage(index, 'isHover', e.target.checked)}
-                                                className="w-4 h-4"
-                                            />
-                                            Hover
-                                        </label>
-                                    </div>
-                                    <div className="md:col-span-1">
-                                        <input
-                                            type="number"
-                                            value={image.displayOrder}
-                                            onChange={(e) => updateImage(index, 'displayOrder', Number(e.target.value))}
-                                            className="w-full px-2 py-2 border border-border rounded-md bg-secondary text-sm"
-                                            min="0"
-                                            title="Display Order"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-1 flex justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(index)}
-                                            className="p-2 hover:bg-red-50 rounded-md transition-colors"
-                                            title="Remove"
-                                        >
-                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <ImageUploadRow
+                                key={index}
+                                image={image}
+                                index={index}
+                                onUpdate={updateImage}
+                                onRemove={() => removeImage(index)}
+                            />
                         ))}
                     </div>
                 )}

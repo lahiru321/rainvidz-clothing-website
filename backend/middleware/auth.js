@@ -1,76 +1,136 @@
-const { createClient } = require('@supabase/supabase-js');
+const jwt = require('jsonwebtoken')
+const logger = require('../config/logger')
 
-// Initialize Supabase client for server-side auth verification
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Token blacklist for logout (in production, use Redis)
+const tokenBlacklist = new Set()
 
-/**
- * Middleware to verify Supabase JWT token
- * Attaches user object to req.user if valid
- */
-const verifyAuth = async (req, res, next) => {
+// Generate access token (short-lived)
+const generateToken = (userId) => {
+    return jwt.sign(
+        { userId },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '1h', // 1 hour access token
+            algorithm: 'HS256'
+        }
+    )
+}
+
+// Generate refresh token (long-lived)
+const generateRefreshToken = (userId) => {
+    return jwt.sign(
+        { userId, type: 'refresh' },
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+        {
+            expiresIn: '7d', // 7 days refresh token
+            algorithm: 'HS256'
+        }
+    )
+}
+
+// Verify access token
+const verifyToken = (req, res, next) => {
     try {
-        // Get token from Authorization header
-        const authHeader = req.headers.authorization;
+        const authHeader = req.headers.authorization
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({
                 error: 'Unauthorized',
-                message: 'No authorization token provided'
-            });
+                message: 'No token provided'
+            })
         }
 
-        const token = authHeader.replace('Bearer ', '');
+        const token = authHeader.split(' ')[1]
 
-        // Verify token with Supabase
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-
-        if (error || !user) {
+        // Check if token is blacklisted
+        if (tokenBlacklist.has(token)) {
+            logger.logSecurity('Attempt to use blacklisted token', {
+                ip: req.ip,
+                token: token.substring(0, 10) + '...'
+            })
             return res.status(401).json({
                 error: 'Unauthorized',
-                message: 'Invalid or expired token'
-            });
+                message: 'Token has been revoked'
+            })
         }
 
-        // Attach user to request object
-        req.user = user;
-        req.userId = user.id; // Supabase user ID
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        next();
+        // Check if it's a refresh token being used as access token
+        if (decoded.type === 'refresh') {
+            return res.status(401).json({
+                error: 'Unauthorized',
+                message: 'Invalid token type'
+            })
+        }
+
+        req.userId = decoded.userId
+        next()
     } catch (error) {
-        console.error('Auth middleware error:', error);
-        return res.status(500).json({
-            error: 'Internal Server Error',
-            message: 'Error verifying authentication'
-        });
-    }
-};
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                error: 'Unauthorized',
+                message: 'Token expired',
+                code: 'TOKEN_EXPIRED'
+            })
+        }
 
-/**
- * Optional auth middleware - doesn't fail if no token
- * Useful for endpoints that work for both authenticated and guest users
- */
-const optionalAuth = async (req, res, next) => {
+        logger.logSecurity('Invalid token attempt', {
+            ip: req.ip,
+            error: error.message
+        })
+
+        return res.status(401).json({
+            error: 'Unauthorized',
+            message: 'Invalid token'
+        })
+    }
+}
+
+// Verify refresh token
+const verifyRefreshToken = (token) => {
     try {
-        const authHeader = req.headers.authorization;
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+        )
 
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.replace('Bearer ', '');
-            const { data: { user } } = await supabase.auth.getUser(token);
-
-            if (user) {
-                req.user = user;
-                req.userId = user.id;
-            }
+        if (decoded.type !== 'refresh') {
+            throw new Error('Invalid token type')
         }
 
-        next();
+        return decoded
     } catch (error) {
-        // Don't fail, just continue without user
-        next();
+        throw error
     }
-};
+}
 
-module.exports = { verifyAuth, optionalAuth };
+// Blacklist token (logout)
+const blacklistToken = (token) => {
+    tokenBlacklist.add(token)
+
+    // Auto-remove from blacklist after expiry (1 hour)
+    setTimeout(() => {
+        tokenBlacklist.delete(token)
+    }, 60 * 60 * 1000)
+
+    logger.logAuth('Token blacklisted', {
+        token: token.substring(0, 10) + '...'
+    })
+}
+
+// Clean up expired tokens from blacklist (run periodically)
+const cleanupBlacklist = () => {
+    // In production, this would be handled by Redis TTL
+    // For now, tokens auto-remove after 1 hour via setTimeout
+}
+
+module.exports = {
+    generateToken,
+    generateRefreshToken,
+    verifyToken,
+    verifyRefreshToken,
+    blacklistToken,
+    cleanupBlacklist
+}

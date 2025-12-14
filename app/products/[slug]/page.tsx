@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import Image from "next/image"
 import { ShoppingBag, Heart, Truck, Shield, RefreshCw } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { getProductBySlug, type Product } from "@/lib/api/products"
 import { useCartStore } from "@/lib/store/cartStore"
+import { useToast } from "@/lib/contexts/ToastContext"
 
 export default function ProductPage() {
     const params = useParams()
     const router = useRouter()
     const slug = params.slug as string
     const { addItem } = useCartStore()
+    const toast = useToast()
 
     const [product, setProduct] = useState<Product | null>(null)
     const [loading, setLoading] = useState(true)
@@ -56,17 +59,17 @@ export default function ProductPage() {
         try {
             const variant = getSelectedVariant()
             if (!variant) {
-                alert('Please select a variant')
+                toast.error('Please select a variant')
                 setAdding(false)
                 return
             }
 
             await addItem(product.slug, variant.sku, quantity)
-            alert('Added to cart!')
+            toast.success('Added to cart!')
             router.push('/cart')
         } catch (error) {
             console.error('Error adding to cart:', error)
-            alert('Failed to add to cart. Please try again.')
+            toast.error('Failed to add to cart. Please try again.')
         } finally {
             setAdding(false)
         }
@@ -133,11 +136,14 @@ export default function ProductPage() {
                     {/* Product Images */}
                     <div className="space-y-4">
                         {/* Main Image */}
-                        <div className="aspect-[3/4] bg-secondary rounded-lg overflow-hidden">
-                            <img
+                        <div className="relative aspect-[3/4] bg-secondary rounded-lg overflow-hidden">
+                            <Image
                                 src={selectedImage}
                                 alt={product.name}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                className="object-cover"
+                                priority
                             />
                         </div>
 
@@ -148,13 +154,15 @@ export default function ProductPage() {
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImage(image.url)}
-                                        className={`aspect-square bg-secondary rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === image.url ? 'border-primary' : 'border-transparent'
+                                        className={`relative aspect-square bg-secondary rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === image.url ? 'border-primary' : 'border-transparent'
                                             }`}
                                     >
-                                        <img
+                                        <Image
                                             src={image.url}
                                             alt={`${product.name} ${index + 1}`}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            sizes="100px"
+                                            className="object-cover"
                                         />
                                     </button>
                                 ))}

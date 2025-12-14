@@ -8,11 +8,13 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { useCartStore } from "@/lib/store/cartStore"
 import { createOrder } from "@/lib/api/orders"
+import { useToast } from "@/lib/contexts/ToastContext"
 
 export default function CheckoutPage() {
     const router = useRouter()
     const { items, getTotal, clearCart } = useCartStore()
     const [loading, setLoading] = useState(false)
+    const toast = useToast()
 
     // Form state
     const [formData, setFormData] = useState({
@@ -58,12 +60,12 @@ export default function CheckoutPage() {
         e.preventDefault()
 
         if (!validateForm()) {
-            alert('Please fill in all required fields')
+            toast.error('Please fill in all required fields')
             return
         }
 
         if (items.length === 0) {
-            alert('Your cart is empty')
+            toast.error('Your cart is empty')
             return
         }
 
@@ -91,20 +93,84 @@ export default function CheckoutPage() {
                     variantId: item.variantId,
                     quantity: item.quantity
                 })),
-                paymentMethod: formData.paymentMethod
+                paymentMethod: formData.paymentMethod,
+                totalAmount: grandTotal
             }
 
             const response = await createOrder(orderData)
 
-            // Clear cart after successful order
-            clearCart()
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to create order')
+            }
 
-            // Redirect to order confirmation
-            router.push(`/order-confirmation?orderId=${response.data._id}`)
+            const orderId = response.data._id
+
+            // Handle payment based on method
+            if (formData.paymentMethod === 'COD') {
+                // For COD, create payment record and redirect to confirmation
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/cod`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                })
+
+                clearCart()
+                router.push(`/order-confirmation?orderId=${orderId}`)
+            } else if (formData.paymentMethod === 'PAYHERE') {
+                // For PayHere, initiate payment
+                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId,
+                        amount: grandTotal,
+                        customerDetails: {
+                            firstName,
+                            lastName,
+                            email: formData.email,
+                            phone: formData.phone,
+                            address: formData.addressLine1,
+                            city: formData.city
+                        }
+                    })
+                })
+
+                const paymentData = await paymentResponse.json()
+
+                if (paymentData.success && paymentData.paymentData) {
+                    // Initialize PayHere payment
+                    // @ts-ignore
+                    if (typeof window !== 'undefined' && window.payhere) {
+                        // @ts-ignore
+                        window.payhere.onCompleted = function (orderId: string) {
+                            clearCart()
+                            router.push(`/payment/success?orderId=${orderId}`)
+                        }
+
+                        // @ts-ignore
+                        window.payhere.onDismissed = function () {
+                            setLoading(false)
+                        }
+
+                        // @ts-ignore
+                        window.payhere.onError = function (error: string) {
+                            alert('Payment failed: ' + error)
+                            setLoading(false)
+                        }
+
+                        // @ts-ignore
+                        window.payhere.startPayment(paymentData.paymentData)
+                    } else {
+                        alert('PayHere is not available. Please try again or use Cash on Delivery.')
+                        setLoading(false)
+                    }
+                } else {
+                    throw new Error('Failed to initiate payment')
+                }
+            }
         } catch (error: any) {
             console.error('Error creating order:', error)
-            alert('Failed to create order. Please try again.')
-        } finally {
+            alert(error.message || 'Failed to create order. Please try again.')
             setLoading(false)
         }
     }
@@ -297,7 +363,8 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <label className="flex items-center p-4 border-2 border-border rounded-md cursor-pointer hover:border-primary transition-colors">
+                                    <label className={`flex items-center p-4 border-2 rounded-md cursor-pointer hover:border-primary transition-colors ${formData.paymentMethod === 'COD' ? 'border-sage bg-sage/5' : 'border-border'
+                                        }`}>
                                         <input
                                             type="radio"
                                             name="paymentMethod"
@@ -312,17 +379,19 @@ export default function CheckoutPage() {
                                         </div>
                                     </label>
 
-                                    <label className="flex items-center p-4 border-2 border-border rounded-md cursor-pointer hover:border-primary transition-colors opacity-50">
+                                    <label className={`flex items-center p-4 border-2 rounded-md cursor-pointer hover:border-primary transition-colors ${formData.paymentMethod === 'PAYHERE' ? 'border-sage bg-sage/5' : 'border-border'
+                                        }`}>
                                         <input
                                             type="radio"
                                             name="paymentMethod"
-                                            value="online_payment"
-                                            disabled
+                                            value="PAYHERE"
+                                            checked={formData.paymentMethod === 'PAYHERE'}
+                                            onChange={handleInputChange}
                                             className="mr-3"
                                         />
                                         <div>
-                                            <p className="font-medium">Online Payment</p>
-                                            <p className="text-sm text-foreground/60">Coming soon</p>
+                                            <p className="font-medium">PayHere - Online Payment</p>
+                                            <p className="text-sm text-foreground/60">Credit/Debit Card, Mobile Banking</p>
                                         </div>
                                     </label>
                                 </div>
@@ -412,6 +481,13 @@ export default function CheckoutPage() {
             </main>
 
             <Footer />
+
+            {/* PayHere Script */}
+            <script
+                type="text/javascript"
+                src="https://www.payhere.lk/lib/payhere.js"
+                async
+            />
         </div>
     )
 }

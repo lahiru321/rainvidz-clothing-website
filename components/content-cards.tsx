@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { getContentCards } from '@/lib/api/homeSections'
 import type { HomeSection } from '@/lib/api/homeSections'
 
@@ -58,10 +59,12 @@ export default function ContentCards() {
                             className="group relative h-[600px] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
                         >
                             {/* Background Image */}
-                            <img
+                            <Image
                                 src={card.imageUrl}
                                 alt={card.title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
 
                             {/* Gradient Overlay */}

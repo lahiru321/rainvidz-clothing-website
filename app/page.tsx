@@ -1,26 +1,30 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import Header from "@/components/header"
-import HeroSection from "@/components/hero-section"
 import ContentCards from "@/components/content-cards"
 import NewArrivals from "@/components/new-arrivals"
 import TrendingCollection from "@/components/trending-collection"
-import CollectionBanner from "@/components/collection-banner"
 import ShopSection from "@/components/shop-section"
-import AboutSection from "@/components/about-section"
 import Footer from "@/components/footer"
 
-export default function Home() {
-  const [cartCount, setCartCount] = useState(0)
+// Lazy load heavy components for better performance
+const HeroSection = dynamic(() => import('@/components/hero-section'), {
+  loading: () => <div className="h-screen bg-background animate-pulse" />
+})
 
+const CollectionBanner = dynamic(() => import('@/components/collection-banner'))
+const AboutSection = dynamic(() => import('@/components/about-section'))
+
+export default function Home() {
   const handleAddToCart = () => {
-    setCartCount((c) => c + 1)
+    // Cart is managed by Zustand store
   }
 
   return (
     <main className="min-h-screen bg-background">
-      <Header cartCount={cartCount} />
+      <Header />
       <HeroSection />
       <NewArrivals onAddToCart={handleAddToCart} />
       <ContentCards />

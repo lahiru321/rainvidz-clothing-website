@@ -3,14 +3,17 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { useCartStore } from "@/lib/store/cartStore"
+import { useConfirm } from "@/lib/contexts/ConfirmDialogContext"
 
 export default function CartPage() {
     const router = useRouter()
     const { items, loading, updateQuantity, removeItem, clearCart, getTotal } = useCartStore()
+    const { confirm } = useConfirm()
 
     const handleUpdateQuantity = (variantId: string, currentQuantity: number, change: number) => {
         const newQuantity = currentQuantity + change
@@ -20,15 +23,15 @@ export default function CartPage() {
     }
 
     const handleRemoveItem = (variantId: string) => {
-        if (confirm('Remove this item from cart?')) {
+        confirm('Remove this item from cart?', () => {
             removeItem(variantId)
-        }
+        })
     }
 
     const handleClearCart = () => {
-        if (confirm('Clear entire cart?')) {
+        confirm('Clear entire cart?', () => {
             clearCart()
-        }
+        })
     }
 
     const total = getTotal()
@@ -59,11 +62,13 @@ export default function CartPage() {
                             {items.map((item) => (
                                 <div key={item.variantId} className="flex gap-4 p-4 bg-secondary rounded-lg">
                                     {/* Product Image */}
-                                    <Link href={`/products/${item.productSlug}`} className="flex-shrink-0">
-                                        <img
+                                    <Link href={`/products/${item.productSlug}`} className="flex-shrink-0 relative w-24 h-32">
+                                        <Image
                                             src={item.image}
                                             alt={item.productName}
-                                            className="w-24 h-32 object-cover rounded-md"
+                                            fill
+                                            sizes="96px"
+                                            className="object-cover rounded-md"
                                         />
                                     </Link>
 

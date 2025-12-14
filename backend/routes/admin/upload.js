@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { cloudinary, uploadOptions } = require('../../config/cloudinary');
-const { verifyAuth } = require('../../middleware/auth');
+const { verifySupabaseToken } = require('../../middleware/supabaseAuth');
 const { verifyAdmin } = require('../../middleware/adminAuth');
+
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
+        fileSize: 10 * 1024 * 1024 // 10MB
     },
     fileFilter: (req, file, cb) => {
         // Accept only jpg and png
@@ -23,8 +24,9 @@ const upload = multer({
 });
 
 // Protect all routes
-router.use(verifyAuth);
+router.use(verifySupabaseToken);
 router.use(verifyAdmin);
+
 
 /**
  * @route   POST /api/admin/upload
