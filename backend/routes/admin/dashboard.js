@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../../models/Product');
 const Order = require('../../models/Order');
-const { verifyAuth } = require('../../middleware/auth');
+const Category = require('../../models/Category');
+const { verifySupabaseToken } = require('../../middleware/supabaseAuth');
 const { verifyAdmin } = require('../../middleware/adminAuth');
 
+
 // Apply auth middleware to all routes
-router.use(verifyAuth);
+router.use(verifySupabaseToken);
 router.use(verifyAdmin);
+
 
 /**
  * @route   GET /api/admin/dashboard/stats

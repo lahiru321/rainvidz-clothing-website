@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect } from "react"
+import Image from "next/image"
+import { memo } from "react"
 
 interface ProductCardProps {
   name: string
@@ -11,13 +12,9 @@ interface ProductCardProps {
   slug: string
 }
 
-export default function ProductCard({ name, price, salePrice, image, slug }: ProductCardProps) {
+const ProductCard = memo(function ProductCard({ name, price, salePrice, image, slug }: ProductCardProps) {
   const displayPrice = salePrice || price
   const hasDiscount = salePrice && salePrice < price
-
-  useEffect(() => {
-    console.log('ProductCard rendered:', { name, price, salePrice, image, slug })
-  }, [name, price, salePrice, image, slug])
 
   return (
     <Link href={`/products/${slug}`} className="group">
@@ -25,17 +22,13 @@ export default function ProductCard({ name, price, salePrice, image, slug }: Pro
         {/* Product Image */}
         <div className="relative overflow-hidden bg-secondary aspect-[2/3] mb-4 transition-all duration-300">
           {image ? (
-            <img
+            <Image
               src={image}
               alt={name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => {
-                console.error('Image failed to load:', image, 'for product:', name)
-                e.currentTarget.style.display = 'none'
-              }}
-              onLoad={() => {
-                console.log('Image loaded successfully:', image)
-              }}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-foreground/40">
@@ -79,4 +72,6 @@ export default function ProductCard({ name, price, salePrice, image, slug }: Pro
       </div>
     </Link>
   )
-}
+})
+
+export default ProductCard

@@ -253,10 +253,10 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0]
                                         if (file) {
-                                            // Validate file size (5MB = 5 * 1024 * 1024 bytes)
-                                            const maxSize = 5 * 1024 * 1024
+                                            // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+                                            const maxSize = 10 * 1024 * 1024
                                             if (file.size > maxSize) {
-                                                setError(`File size must be less than 5MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
+                                                setError(`File size must be less than 10MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
                                                 e.target.value = '' // Clear the input
                                                 return
                                             }
@@ -286,7 +286,7 @@ export default function EditHomeContentPage({ params }: { params: Promise<{ id: 
                                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-sage file:text-white hover:file:bg-sage/90 cursor-pointer"
                                     disabled={saving}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">JPG or PNG, max 5MB</p>
+                                <p className="text-xs text-gray-500 mt-1">JPG or PNG, max 10MB</p>
                             </div>
 
                             {formData.imageUrl && (
