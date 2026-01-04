@@ -1,16 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ProductCard from "@/components/product-card"
 import { searchProducts, type Product } from "@/lib/api/products"
 import { getCategories, type Category } from "@/lib/api/categories"
 
-export default function SearchPage() {
+function SearchContent() {
     const searchParams = useSearchParams()
     const initialQuery = searchParams.get('q') || ''
 
@@ -302,5 +302,27 @@ export default function SearchPage() {
 
             <Footer />
         </div>
+    )
+}
+
+function SearchLoading() {
+    return (
+        <div className="min-h-screen bg-background">
+            <Header />
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </main>
+            <Footer />
+        </div>
+    )
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<SearchLoading />}>
+            <SearchContent />
+        </Suspense>
     )
 }

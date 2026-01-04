@@ -1,14 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { LogIn, Mail, Lock } from "lucide-react"
+import { LogIn, Mail, Lock, Loader2 } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { useAuth } from "@/lib/contexts/AuthContext"
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const redirectTo = searchParams.get('redirect') || '/'
@@ -166,5 +166,27 @@ export default function LoginPage() {
 
             <Footer />
         </div>
+    )
+}
+
+function LoginPageLoading() {
+    return (
+        <div className="min-h-screen bg-background">
+            <Header />
+            <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="bg-secondary p-8 rounded-lg shadow-lg flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </main>
+            <Footer />
+        </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoginPageLoading />}>
+            <LoginForm />
+        </Suspense>
     )
 }

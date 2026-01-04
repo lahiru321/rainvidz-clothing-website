@@ -1,12 +1,13 @@
 "use client"
 
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { XCircle, ArrowLeft, ShoppingBag } from "lucide-react"
+import { XCircle, ArrowLeft, ShoppingBag, Loader2 } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
-export default function PaymentCancelPage() {
+function PaymentCancelContent() {
     const searchParams = useSearchParams()
     const orderId = searchParams.get('orderId')
 
@@ -96,5 +97,27 @@ export default function PaymentCancelPage() {
 
             <Footer />
         </div>
+    )
+}
+
+function PaymentCancelLoading() {
+    return (
+        <div className="min-h-screen bg-background">
+            <Header />
+            <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </main>
+            <Footer />
+        </div>
+    )
+}
+
+export default function PaymentCancelPage() {
+    return (
+        <Suspense fallback={<PaymentCancelLoading />}>
+            <PaymentCancelContent />
+        </Suspense>
     )
 }

@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { CheckCircle, Package, Truck, MapPin, CreditCard } from "lucide-react"
+import { CheckCircle, Package, Truck, MapPin, CreditCard, Loader2 } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { getOrderById } from "@/lib/api/orders"
@@ -35,7 +35,7 @@ interface BackendOrder {
     createdAt: string;
 }
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const orderId = searchParams.get('orderId')
@@ -68,7 +68,7 @@ export default function OrderConfirmationPage() {
             <div className="min-h-screen bg-background">
                 <Header />
                 <div className="flex items-center justify-center h-screen">
-                    <p className="text-foreground/60">Loading order details...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
             </div>
         )
@@ -218,5 +218,27 @@ export default function OrderConfirmationPage() {
 
             <Footer />
         </div>
+    )
+}
+
+function OrderConfirmationLoading() {
+    return (
+        <div className="min-h-screen bg-background">
+            <Header />
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </main>
+            <Footer />
+        </div>
+    )
+}
+
+export default function OrderConfirmationPage() {
+    return (
+        <Suspense fallback={<OrderConfirmationLoading />}>
+            <OrderConfirmationContent />
+        </Suspense>
     )
 }
