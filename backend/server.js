@@ -58,6 +58,26 @@ if (process.env.NODE_ENV === 'development') {
     }));
 }
 
+// Root endpoint - API info
+app.get('/', (req, res) => {
+    res.json({
+        name: 'Rainvidz Clothing Website API',
+        version: '1.0.0',
+        status: 'running',
+        documentation: '/health',
+        endpoints: {
+            health: '/health',
+            products: '/api/products',
+            collections: '/api/collections',
+            categories: '/api/categories',
+            auth: '/api/auth',
+            cart: '/api/cart',
+            orders: '/api/orders'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({
